@@ -3,6 +3,12 @@ const lines2=text.split('\n');
   let accMatch=null;
   if(secIdx>=0){const sl=[];for(let i=secIdx+1;i<lines2.length;i++){if(/^[A-Z]{3,}/.test(lines2[i].trim())&&lines2[i].length<80&&i>secIdx+1)break;sl.push(lines2[i]);}const st=sl.join('\n').trim();if(st.length>20)accMatch=[null,st];}<!DOCTYPE html>
 <html lang="es">
+
+<script>
+  window.SUPABASE_URL  = 'https://oahppaoweeyahppkotjd.supabase.co';
+  window.SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9haHBwYW93ZWV5YWhwcGtvdGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNDc2NjAsImV4cCI6MjA5MDkyMzY2MH0.wgQ0-9wnEcnv4M-qomMjRd6AoIZpXTGlZEgXNW1oerM';
+
+</script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
