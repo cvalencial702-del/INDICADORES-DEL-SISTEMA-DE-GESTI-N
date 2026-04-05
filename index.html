@@ -8,6 +8,7 @@ const lines2=text.split('\n');
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>HSEQ – Auditoría Ambiental</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -466,12 +467,7 @@ tbody td{padding:9px 12px;vertical-align:middle}
   #tipoCards{grid-template-columns:repeat(2,1fr)!important}
 }
 
-/* ── AI MODAL STYLES ── */
-.ai-tab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.6);padding:6px 13px;border-radius:20px;font-size:.72rem;
-  cursor:pointer;font-weight:700;transition:all .15s;font-family:'Lato',sans-serif}
-.ai-tab:hover{background:rgba(124,131,245,.2);border-color:#7c83f5;color:#a0a8ff}
-.ai-tab.on{background:linear-gradient(135deg,#7c83f5,#5b63e0);border-color:#7c83f5;color:white}
+
 .ai-stat-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 14px}
 .ai-stat-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1}
 .ai-stat-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
@@ -569,8 +565,14 @@ tbody td{padding:9px 12px;vertical-align:middle}
     <input class="auth-inp" id="aPass" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button class="auth-btn" onclick="doLogin()">Ingresar al Sistema</button>
     <div class="auth-err" id="aErr">Usuario o contraseña incorrectos.</div>
+    <div id="sbStatusBadge" style="display:none;margin-top:10px;
+      background:rgba(20,112,64,.15);border:1px solid rgba(20,112,64,.3);
+      border-radius:6px;padding:7px 12px;font-size:.73rem;font-weight:700;color:#147040">
+      🗄️ Supabase conectado — ingrese con su email
+    </div>
     <div class="auth-hint">
-      Edición: <b>admin</b> / <b>2025</b> &nbsp;|&nbsp; Lectura: <b>viewer</b> / <b>ver2025</b>
+      Local: <b>admin</b> / <b>2025</b> &nbsp;|&nbsp; <b>viewer</b> / <b>ver2025</b><br>
+      <span style="opacity:.7;font-size:.68rem">Supabase: use su email registrado</span>
     </div>
   </div>
 </div>
@@ -597,6 +599,11 @@ tbody td{padding:9px 12px;vertical-align:middle}
       <span class="yr-v" id="yrV">2026</span>
       <button onclick="chY(1)">&#8250;</button>
     </div>
+    <span id="sbBadge" style="display:none;font-size:.65rem;font-weight:700;
+      background:rgba(20,112,64,.2);border:1px solid rgba(20,112,64,.35);
+      color:#70d098;padding:4px 10px;border-radius:20px;align-items:center;gap:4px">
+      ☁️ Supabase
+    </span>
     <button class="hbtn hbtn-mode" id="modeBtn" onclick="togMode()">Modo lectura</button>
     <button class="hbtn hbtn-add" onclick="oMov('newMov')">+ Actividad</button>
   </div>
@@ -638,12 +645,7 @@ tbody td{padding:9px 12px;vertical-align:middle}
             display:flex;align-items:center;gap:5px;transition:all .15s"
             onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='var(--bg2)'">
             📊 Acumulado</button>
-          <button onclick="openAI()" style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-            color:white;border:none;padding:7px 15px;border-radius:var(--r3);font-size:.73rem;
-            font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;
-            box-shadow:0 2px 12px rgba(15,34,96,.35);transition:all .15s"
-            onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">
-            <span style="font-size:.85rem">✨</span> Análisis con IA</button>
+
         </div>
       </div>
 
@@ -670,48 +672,30 @@ tbody td{padding:9px 12px;vertical-align:middle}
 
       <div class="krow" id="krow"></div>
 
-      <!-- AUTO AI ANALYSIS BANNER -->
-      <div id="autoAiBanner" style="background:linear-gradient(135deg,#0d1117,#1a1a2e,#0f2d50);
-        border:1px solid #30363d;border-radius:var(--r);padding:16px 20px;
-        margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;
-        gap:14px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(15,34,96,.25)">
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:220px">
-          <div style="width:42px;height:42px;background:linear-gradient(135deg,#7c83f5,#5b63e0);
-            border-radius:10px;display:flex;align-items:center;justify-content:center;
-            font-size:1.3rem;flex-shrink:0">✨</div>
-          <div>
-            <div style="font-size:.82rem;font-weight:700;color:white;margin-bottom:2px">
-              Análisis Automático con IA</div>
-            <div id="aiBannerSub" style="font-size:.71rem;color:rgba(255,255,255,.5)">
-              Diagnóstico inteligente de todos los indicadores HSEQ · <span id="aiBannerYear">2026</span>
+      <!-- AI ANALYSIS RESULTS — silent, auto-populated -->
+      <div id="autoAiBanner" style="display:none;background:linear-gradient(135deg,#0d1117,#1a1a2e,#0f2d50);
+        border:1px solid #30363d;border-radius:var(--r);padding:14px 18px;
+        margin-bottom:16px;box-shadow:0 4px 20px rgba(15,34,96,.2)">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="font-size:1rem;flex-shrink:0;margin-top:3px">✨</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;
+              letter-spacing:.09em;color:#7c83f5;margin-bottom:6px;
+              display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span>Análisis HSEQ · <span id="aiBannerYear">2026</span></span>
+              <span id="aiBannerStatus" style="font-weight:500;opacity:.6;font-size:.6rem"></span>
             </div>
+            <div id="aiBannerText" style="font-size:.8rem;color:rgba(255,255,255,.8);
+              line-height:1.65"></div>
           </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
-          <div id="aiBannerStatus" style="font-size:.68rem;color:rgba(255,255,255,.4);
-            display:flex;align-items:center;gap:5px"></div>
-          <button onclick="openAI()"
-            style="background:linear-gradient(135deg,#7c83f5,#5b63e0);border:none;
-              color:white;padding:9px 18px;border-radius:8px;font-size:.78rem;
-              font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;
-              box-shadow:0 3px 12px rgba(124,131,245,.4);transition:all .15s;white-space:nowrap"
-            onmouseover="this.style.filter='brightness(1.15)'"
-            onmouseout="this.style.filter='none'">
-            ✨ Ver Análisis General
-          </button>
-          <button onclick="runQuickAI()"
-            style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-              color:rgba(255,255,255,.75);padding:9px 15px;border-radius:8px;font-size:.78rem;
-              font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s"
-            onmouseover="this.style.background='rgba(255,255,255,.15)'"
-            onmouseout="this.style.background='rgba(255,255,255,.08)'"
-            id="quickAiBtn">
-            🔄 Regenerar
-          </button>
+          <button onclick="document.getElementById('autoAiBanner').style.display='none'"
+            style="background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.4);
+            width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem;
+            flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px">✕</button>
         </div>
       </div>
 
-      <div id="acumPanel" class="acum-panel vh">
+            <div id="acumPanel" class="acum-panel vh">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--soft)">
             📊 Acumulado General — <span id="acumYrLbl">2026</span>
@@ -814,94 +798,6 @@ tbody td{padding:9px 12px;vertical-align:middle}
       <div id="pdfGrid" class="pdf-grid"></div>
     </div>
 
-  </div>
-</div>
-
-
-<!-- ══ AI ANALYSIS MODAL ══ -->
-<div class="mov" id="aiMov">
-  <div class="modal" style="max-width:780px;background:#0d1117">
-    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-      padding:20px 24px;border-radius:14px 14px 0 0;
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      border-bottom:2px solid #7c83f5">
-      <div>
-        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;
-          letter-spacing:.1em;color:#7c83f5;margin-bottom:4px">✨ Inteligencia Artificial</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;
-          color:white;line-height:1.3">Análisis Automático de Indicadores HSEQ</div>
-        <div id="aiModalSub" style="font-size:.71rem;color:rgba(255,255,255,.5);margin-top:3px">
-          Generando análisis para el año 2026...</div>
-      </div>
-      <button class="xcl" onclick="cMov('aiMov')">✕</button>
-    </div>
-    <div style="padding:22px 24px;background:#0d1117;border-radius:0 0 14px 14px;
-      max-height:75vh;overflow-y:auto">
-
-      <!-- Selector de análisis -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-        <button class="ai-tab on" onclick="setAiTab(this,'general')">📋 General</button>
-        <button class="ai-tab" onclick="setAiTab(this,'estructura')">🏗️ Estructura</button>
-        <button class="ai-tab" onclick="setAiTab(this,'proceso')">⚙️ Proceso</button>
-        <button class="ai-tab" onclick="setAiTab(this,'resultado')">📈 Resultado</button>
-        <button class="ai-tab" onclick="setAiTab(this,'eficacia')">🎯 Eficacia</button>
-        <button class="ai-tab" onclick="setAiTab(this,'planes')">📌 Planes de Acción</button>
-      </div>
-
-      <!-- Loading state -->
-      <div id="aiLoading" style="text-align:center;padding:44px 20px;display:none">
-        <div style="width:44px;height:44px;border:3px solid rgba(124,131,245,.2);
-          border-top-color:#7c83f5;border-radius:50%;margin:0 auto 16px;
-          animation:spin 0.9s linear infinite"></div>
-        <div style="color:rgba(255,255,255,.7);font-size:.86rem;font-weight:600;margin-bottom:6px">
-          Analizando indicadores con IA...</div>
-        <div class="ai-dots-anim" style="color:#7c83f5;font-size:.78rem">
-          <span>●</span><span>●</span><span>●</span>
-        </div>
-        <div id="aiLoadMsg" style="color:rgba(255,255,255,.35);font-size:.72rem;margin-top:10px">
-          Procesando datos del sistema HSEQ</div>
-      </div>
-
-      <!-- Result area -->
-      <div id="aiResult" style="display:none">
-        <!-- Stats header -->
-        <div id="aiStatsRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px"></div>
-        <!-- Main analysis -->
-        <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:14px">
-          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-            color:#7c83f5;margin-bottom:10px">📝 Análisis Detallado</div>
-          <div id="aiText" style="font-size:.83rem;color:#e6edf3;line-height:1.7;
-            white-space:pre-wrap"></div>
-        </div>
-        <!-- Recommendations -->
-        <div id="aiRecs" style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:14px;display:none">
-          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-            color:#f0c840;margin-bottom:10px">💡 Recomendaciones</div>
-          <div id="aiRecsText" style="font-size:.82rem;color:#e6edf3;line-height:1.7"></div>
-        </div>
-        <!-- Per-indicator table -->
-        <div id="aiTable" style="background:#161b22;border:1px solid #30363d;border-radius:10px;
-          padding:16px;display:none">
-          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-            color:#70d098;margin-bottom:10px">📊 Estado por Indicador</div>
-          <div id="aiTableContent" style="font-size:.78rem;color:#e6edf3"></div>
-        </div>
-      </div>
-
-      <!-- Error state -->
-      <div id="aiError" style="display:none;background:#2d1515;border:1px solid #f09090;
-        border-radius:8px;padding:14px;color:#f09090;font-size:.82rem"></div>
-
-      <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:16px">
-        <button onclick="cMov('aiMov')" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-          color:rgba(255,255,255,.7);padding:9px 18px;border-radius:var(--r2);font-size:.8rem;
-          cursor:pointer;font-weight:700">Cerrar</button>
-        <button id="aiRegenBtn" onclick="runAI(currentAiTab)" style="background:linear-gradient(135deg,#7c83f5,#5b63e0);
-          border:none;color:white;padding:9px 18px;border-radius:var(--r2);font-size:.8rem;
-          cursor:pointer;font-weight:700;display:flex;align-items:center;gap:6px">
-          ✨ Regenerar análisis</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1027,109 +923,7 @@ tbody td{padding:9px 12px;vertical-align:middle}
       <!-- TREND -->
       <div class="trend-row" id="eTrend" style="display:none;margin-top:10px"></div>
 
-      <!-- ✨ AI ANALYSIS FOR THIS INDICATOR -->
-      <div style="margin-top:12px">
-        <button id="eAiBtn" onclick="runIndicatorAI()"
-          style="width:100%;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-            color:white;border:none;padding:11px 16px;border-radius:var(--r2);
-            font-size:.8rem;font-weight:700;cursor:pointer;
-            display:flex;align-items:center;justify-content:center;gap:8px;
-            box-shadow:0 2px 12px rgba(15,34,96,.3);transition:all .15s"
-          onmouseover="this.style.filter='brightness(1.2)'"
-          onmouseout="this.style.filter='none'">
-          <span style="font-size:1rem">✨</span> Generar Análisis con IA para este Indicador
-        </button>
-
-        <!-- AI Result Panel -->
-        <div id="eAiPanel" style="display:none;margin-top:10px;background:#0d1117;
-          border-radius:var(--r2);overflow:hidden;border:1px solid #30363d">
-
-          <!-- Header -->
-          <div style="background:linear-gradient(135deg,#1a1a2e,#0f3460);
-            padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:.85rem">✨</span>
-              <div>
-                <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;
-                  letter-spacing:.09em;color:#7c83f5">Análisis IA del Indicador</div>
-                <div id="eAiMeta" style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:1px">—</div>
-              </div>
-            </div>
-            <div style="display:flex;gap:6px">
-              <button onclick="runIndicatorAI()"
-                style="background:rgba(124,131,245,.2);border:1px solid rgba(124,131,245,.3);
-                  color:#a0a8ff;padding:4px 10px;border-radius:5px;font-size:.65rem;
-                  cursor:pointer;font-weight:700;transition:all .15s"
-                onmouseover="this.style.background='rgba(124,131,245,.35)'"
-                onmouseout="this.style.background='rgba(124,131,245,.2)'">
-                🔄 Regenerar
-              </button>
-              <button onclick="document.getElementById('eAiPanel').style.display='none'"
-                style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-                  color:rgba(255,255,255,.5);width:22px;height:22px;border-radius:50%;
-                  cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center">
-                ✕
-              </button>
-            </div>
-          </div>
-
-          <!-- Loading -->
-          <div id="eAiLoading" style="padding:24px;text-align:center;display:none">
-            <div style="width:32px;height:32px;border:2.5px solid rgba(124,131,245,.2);
-              border-top-color:#7c83f5;border-radius:50%;margin:0 auto 10px;
-              animation:spin .8s linear infinite"></div>
-            <div style="color:rgba(255,255,255,.55);font-size:.78rem" id="eAiLoadMsg">
-              Analizando indicador...</div>
-          </div>
-
-          <!-- Result -->
-          <div id="eAiContent" style="padding:14px 16px;display:none">
-
-            <!-- Mini stats -->
-            <div id="eAiStats" style="display:grid;grid-template-columns:repeat(3,1fr);
-              gap:8px;margin-bottom:12px"></div>
-
-            <!-- Diagnosis -->
-            <div style="margin-bottom:10px">
-              <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;
-                letter-spacing:.08em;color:#7c83f5;margin-bottom:6px">📋 Diagnóstico</div>
-              <div id="eAiDiag" style="font-size:.8rem;color:#e6edf3;line-height:1.65;
-                background:#161b22;border-radius:7px;padding:11px 13px"></div>
-            </div>
-
-            <!-- Recommendations -->
-            <div id="eAiRecsWrap" style="display:none;margin-bottom:10px">
-              <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;
-                letter-spacing:.08em;color:#f0c840;margin-bottom:6px">💡 Recomendaciones</div>
-              <div id="eAiRecs" style="font-size:.78rem;color:#e6edf3;line-height:1.65;
-                background:#161b22;border-radius:7px;padding:11px 13px"></div>
-            </div>
-
-            <!-- Auto-fill suggestion -->
-            <div id="eAiFillWrap" style="display:none;margin-top:10px;
-              background:#0f2d1a;border:1px solid #2d6a3f;border-radius:7px;padding:11px 13px">
-              <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;
-                letter-spacing:.08em;color:#70d098;margin-bottom:7px">
-                ✏️ Texto sugerido para el análisis</div>
-              <div id="eAiFillText" style="font-size:.78rem;color:#c8e6d4;line-height:1.6;
-                margin-bottom:9px"></div>
-              <button onclick="applyAIAnalysis()"
-                style="background:linear-gradient(135deg,#147040,#16a34a);color:white;
-                  border:none;padding:7px 14px;border-radius:6px;font-size:.74rem;
-                  font-weight:700;cursor:pointer;transition:all .14s"
-                onmouseover="this.style.filter='brightness(1.1)'"
-                onmouseout="this.style.filter='none'">
-                ✅ Aplicar al campo de análisis
-              </button>
-            </div>
-          </div>
-
-          <!-- Error -->
-          <div id="eAiError" style="display:none;padding:12px 14px;background:#2d1515;
-            color:#f09090;font-size:.79rem;border-top:1px solid #30363d"></div>
-        </div>
-      </div>
-
+      
       <div class="sep"></div>
 
       <!-- ANALYSIS -->
@@ -1613,6 +1407,8 @@ async function runAI(tab){
     const text=data.content?.find(b=>b.type==='text')?.text||'Sin respuesta';
     const result={text,tab,timestamp:new Date().toLocaleTimeString('es-CO'),year:CY};
     aiCache[CY+'_'+tab]=result;
+    // Save to Supabase cache
+    if(useSupabase && sbClient) sbSaveAICache(tab, CY, text);
     renderAIResult(result,tab);
   } catch(e){
     clearInterval(dotInt);
@@ -1710,14 +1506,229 @@ function renderAIResult(result, tab){
     stripText.textContent=meaningful.substring(0,240)+(meaningful.length>240?'...':'');
     strip.style.display='block';
   }
-  // Update banner status
-  const bStatus=document.getElementById('aiBannerStatus');
+  // Populate silent banner with results (general analysis only)
   const bYear=document.getElementById('aiBannerYear');
-  if(bStatus&&tab==='general'){
-    bStatus.innerHTML='<span style="color:#70d098">●</span> Análisis listo · '
-      +new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-  }
   if(bYear) bYear.textContent=CY;
+  if(tab==='general'){
+    const banner=document.getElementById('autoAiBanner');
+    const bText=document.getElementById('aiBannerText');
+    const bStatus=document.getElementById('aiBannerStatus');
+    if(banner&&bText){
+      // Extract clean summary lines (skip any JS-looking lines)
+      const lines=text.split('\n')
+        .map(l=>l.replace(/^[#*\-•\d]+\.?\s*/,'').trim())
+        .filter(l=>l.length>20&&!/^(const|let|var|function|if\()/.test(l));
+      const summary=lines.slice(0,5).join('\n');
+      bText.textContent=summary;
+      if(bStatus) bStatus.textContent='● '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+      banner.style.display='block';
+    }
+  }
+}
+
+// ═══ SUPABASE CONFIG ═══
+// Configurar con sus credenciales de Supabase
+// Obtener en: https://supabase.com/dashboard → Project Settings → API
+const SUPABASE_URL  = window.SUPABASE_URL  || '';
+const SUPABASE_ANON = window.SUPABASE_ANON || '';
+
+let sbClient = null;
+let sbUser   = null;
+let sbRole   = 'viewer';
+let useSupabase = false;  // true cuando Supabase está configurado y el usuario autenticado
+
+function initSupabase(){
+  if(!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('TU-PROJECT')) return false;
+  try {
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    useSupabase = true;
+    console.log('✅ Supabase conectado:', SUPABASE_URL);
+    return true;
+  } catch(e){
+    console.warn('⚠️ Supabase no disponible, usando datos locales:', e.message);
+    return false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Autenticación
+// ════════════════════════════════════════════════════════════
+async function sbLogin(email, password){
+  if(!sbClient) return null;
+  const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+  if(error) throw error;
+  // Get role from usuarios_hseq table
+  const { data: usr } = await sbClient
+    .from('usuarios_hseq')
+    .select('rol,nombre,cargo')
+    .eq('username', email)
+    .maybeSingle();
+  sbUser = data.user;
+  sbRole = usr?.rol || 'viewer';
+  return { session: data.session, rol: sbRole, nombre: usr?.nombre };
+}
+
+async function sbLogout(){
+  if(sbClient) await sbClient.auth.signOut();
+  sbUser = null; sbRole = 'viewer';
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Cargar indicadores del año activo
+// ════════════════════════════════════════════════════════════
+async function sbLoadIndicadores(ano){
+  if(!sbClient) return null;
+  try {
+    const { data, error } = await sbClient
+      .from('dashboard_indicadores')
+      .select('*')
+      .eq('ano', ano)
+      .order('definicion');
+    if(error) throw error;
+    return data;
+  } catch(e){
+    console.warn('sbLoadIndicadores error:', e.message);
+    return null;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Guardar medición (upsert)
+// ════════════════════════════════════════════════════════════
+async function sbSaveMedicion(medicion){
+  if(!sbClient) return false;
+  try {
+    const { error } = await sbClient
+      .from('mediciones')
+      .upsert(medicion, { onConflict: 'indicador_id,ano' });
+    if(error) throw error;
+    return true;
+  } catch(e){
+    console.warn('sbSaveMedicion error:', e.message);
+    return false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Guardar planes de acción
+// ════════════════════════════════════════════════════════════
+async function sbSavePlanes(medicionId, planes){
+  if(!sbClient) return false;
+  try {
+    // Delete existing
+    await sbClient.from('planes_accion').delete().eq('medicion_id', medicionId);
+    if(!planes.length) return true;
+    const rows = planes.filter(p=>p.actividad).map((p,i)=>({
+      medicion_id: medicionId,
+      numero: i+1,
+      actividad: p.actividad,
+      responsable: p.responsable||null,
+      fecha_seguimiento: p.fecha||null,
+      obs_cierre: p.obs||null,
+      estado: p.estado||'pend',
+    }));
+    if(!rows.length) return true;
+    const { error } = await sbClient.from('planes_accion').insert(rows);
+    if(error) throw error;
+    return true;
+  } catch(e){
+    console.warn('sbSavePlanes error:', e.message);
+    return false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Crear / editar / eliminar indicador
+// ════════════════════════════════════════════════════════════
+async function sbCreateIndicador(ind){
+  if(!sbClient) return null;
+  const { data, error } = await sbClient.from('indicadores').insert(ind).select().single();
+  if(error) throw error;
+  return data;
+}
+
+async function sbUpdateIndicador(id, changes){
+  if(!sbClient) return false;
+  const { error } = await sbClient.from('indicadores').update(changes).eq('id', id);
+  if(error) throw error;
+  return true;
+}
+
+async function sbDeleteIndicador(id){
+  if(!sbClient) return false;
+  const { error } = await sbClient.from('indicadores').update({activo:false}).eq('id', id);
+  if(error) throw error;
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Cache de análisis IA
+// ════════════════════════════════════════════════════════════
+async function sbGetAICache(tipo, ano, indicadorId=null){
+  if(!sbClient) return null;
+  let q = sbClient.from('analisis_ia').select('contenido,created_at')
+    .eq('tipo', tipo).eq('ano', ano);
+  if(indicadorId) q = q.eq('indicador_id', indicadorId);
+  else q = q.is('indicador_id', null);
+  const { data } = await q.maybeSingle();
+  return data?.contenido || null;
+}
+
+async function sbSaveAICache(tipo, ano, contenido, indicadorId=null){
+  if(!sbClient) return;
+  await sbClient.from('analisis_ia').upsert(
+    { tipo, ano, indicador_id: indicadorId||null, contenido,
+      modelo: 'claude-sonnet-4-20250514' },
+    { onConflict: 'tipo,ano,indicador_id' }
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPABASE: Convertir formato DB → formato local (DB variable)
+// ════════════════════════════════════════════════════════════
+function sbRecordToLocal(row){
+  // dashboard_indicadores view returns flat merged record
+  return {
+    lider: row.lider||'',
+    tipo_proceso: row.tipo_proceso||'',
+    proceso: row.proceso||'',
+    modulo: row.modulo||'SST',
+    estrategia: row.estrategia||'',
+    tipo_indicador: row.tipo_indicador||'RESULTADO',
+    definicion: row.definicion||'',
+    interpretacion: row.interpretacion||'',
+    meta: row.meta||'',
+    metodo_calculo: row.metodo_calculo||'',
+    fuente: row.fuente||'',
+    frecuencia: row.frecuencia||'TRIMESTRAL',
+    var_a1: row.var_a1!=null?String(row.var_a1):'',
+    var_b1: row.var_b1!=null?String(row.var_b1):'',
+    resultado1: row.resultado1!=null?String(row.resultado1):'',
+    var_a2: row.var_a2!=null?String(row.var_a2):'',
+    var_b2: row.var_b2!=null?String(row.var_b2):'',
+    resultado2: row.resultado2!=null?String(row.resultado2):'',
+    var_a3: row.var_a3!=null?String(row.var_a3):'',
+    var_b3: row.var_b3!=null?String(row.var_b3):'',
+    resultado3: row.resultado3!=null?String(row.resultado3):'',
+    var_a4: row.var_a4!=null?String(row.var_a4):'',
+    var_b4: row.var_b4!=null?String(row.var_b4):'',
+    resultado4: row.resultado4!=null?String(row.resultado4):'',
+    resultado_alcanzado: row.resultado_alcanzado!=null?String(row.resultado_alcanzado):'',
+    analisis: row.analisis||'',
+    obs: row.obs||'',
+    pa1_actividad:'',pa1_responsable:'',pa1_fecha:'',pa1_obs:'',
+    pa2_actividad:'',pa2_responsable:'',pa2_fecha:'',pa2_obs:'',
+    pa3_actividad:'',pa3_responsable:'',pa3_fecha:'',pa3_obs:'',
+    pa4_actividad:'',pa4_responsable:'',pa4_fecha:'',pa4_obs:'',
+    evaluador: row.evaluador||'',
+    cargo: row.cargo||'',
+    ano: String(row.ano||2026),
+    objetivo: row.objetivo||'',
+    comunicar: row.comunicar||'',
+    // Supabase IDs for updates
+    _indicador_id: row.indicador_id,
+    _medicion_id: row.medicion_id,
+  };
 }
 
 // ═══ DATA & STATE ═══
@@ -1808,29 +1819,119 @@ function tChip(t){const m={ESTRUCTURA:'tES',PROCESO:'tPR',RESULTADO:'tRE',COBERT
 
 // ── AUTH ──
 const USERS=[{u:'admin',p:'2025',admin:true},{u:'hseq',p:'2025',admin:true},{u:'viewer',p:'ver2025',admin:false},{u:'consulta',p:'ver2025',admin:false}];
-function doLogin(){
-  const u=document.getElementById('aUser').value.trim().toLowerCase();
+async function doLogin(){
+  const u=document.getElementById('aUser').value.trim();
   const p=document.getElementById('aPass').value;
-  const ok=USERS.find(x=>x.u===u&&x.p===p);
+  const errEl=document.getElementById('aErr');
+  const btn=document.querySelector('.auth-btn');
+  if(btn){btn.textContent='Conectando...';btn.disabled=true;}
+
+  // Try Supabase first (if configured)
+  if(useSupabase && u.includes('@')){
+    try {
+      const result = await sbLogin(u, p);
+      isAdmin = result.rol==='admin'||result.rol==='editor';
+      editMode = isAdmin;
+      document.getElementById('authWrap').style.display='none';
+      if(btn){btn.textContent='Ingresar al Sistema';btn.disabled=false;}
+      toast('✅ Conectado a Supabase · '+( result.nombre||u),'ok');
+      await initWithSupabase();
+      return;
+    } catch(e){
+      errEl.textContent='Error Supabase: '+e.message;
+      errEl.style.display='block';
+      if(btn){btn.textContent='Ingresar al Sistema';btn.disabled=false;}
+      return;
+    }
+  }
+
+  // Fallback: local auth
+  const uLow=u.toLowerCase();
+  const ok=USERS.find(x=>x.u===uLow&&x.p===p);
+  if(btn){btn.textContent='Ingresar al Sistema';btn.disabled=false;}
   if(ok){
     isAdmin=ok.admin;
     document.getElementById('authWrap').style.display='none';
+    toast(useSupabase?'⚠️ Modo local (configure email Supabase)':'🔒 Modo local','in');
     init();
   } else {
-    document.getElementById('aErr').style.display='block';
+    errEl.textContent='Usuario o contraseña incorrectos.';
+    errEl.style.display='block';
     document.getElementById('aPass').value='';
   }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('authWrap').style.display!=='none')doLogin();});
 
-// ── INIT ──
+// ── INIT (local data) ──
 function init(){
   document.getElementById('hLogo').src=LOGO;
   document.getElementById('authLogo').src=LOGO;
   popProcs();
   rAll();
-  // Auto-generate general AI analysis in background after login
   setTimeout(()=>{ autoGenAI(); }, 1200);
+}
+
+// ── INIT WITH SUPABASE ──
+async function initWithSupabase(){
+  document.getElementById('hLogo').src=LOGO;
+  document.getElementById('authLogo').src=LOGO;
+
+  // Show loading indicator
+  const mc=document.getElementById('mc');
+  if(mc) mc.style.opacity='.4';
+
+  try {
+    const rows = await sbLoadIndicadores(CY);
+    if(rows && rows.length > 0){
+      // Replace DB with Supabase data
+      DB = rows.map(r => sbRecordToLocal(r));
+      // Also load plans for visible records
+      await sbLoadPlanes();
+      toast('🗄️ '+DB.length+' indicadores cargados desde Supabase','ok');
+    } else {
+      toast('⚠️ Sin datos en Supabase para '+CY+' — usando datos locales','in');
+      DB = JSON.parse(JSON.stringify(DB_RAW));
+    }
+  } catch(e){
+    console.warn('initWithSupabase error:', e);
+    DB = JSON.parse(JSON.stringify(DB_RAW));
+    toast('⚠️ Error Supabase, usando datos locales','in');
+  }
+
+  if(mc) mc.style.opacity='1';
+  popProcs();
+  rAll();
+  setTimeout(()=>{ autoGenAI(); }, 1500);
+}
+
+// ── LOAD PLANS FROM SUPABASE ──
+async function sbLoadPlanes(){
+  if(!sbClient) return;
+  try {
+    // Get medicion IDs for current records
+    const medIds = [...new Set(DB.map(r=>r._medicion_id).filter(Boolean))];
+    if(!medIds.length) return;
+    const { data:planes } = await sbClient
+      .from('planes_accion')
+      .select('*')
+      .in('medicion_id', medIds)
+      .order('numero');
+    if(!planes) return;
+    // Group by medicion_id
+    const byMed = {};
+    planes.forEach(p=>{ if(!byMed[p.medicion_id]) byMed[p.medicion_id]=[];  byMed[p.medicion_id].push(p); });
+    // Assign to DB records
+    DB.forEach(r=>{
+      const ps = byMed[r._medicion_id]||[];
+      ['pa1','pa2','pa3','pa4'].forEach((k,i)=>{
+        const p=ps[i];
+        r[k+'_actividad']=p?.actividad||'';
+        r[k+'_responsable']=p?.responsable||'';
+        r[k+'_fecha']=p?.fecha_seguimiento||'';
+        r[k+'_obs']=p?.obs_cierre||'';
+      });
+    });
+  } catch(e){ console.warn('sbLoadPlanes error:', e); }
 }
 
 function autoGenAI(){
@@ -1857,7 +1958,6 @@ async function runQuickAI(){
     await runAI('general');
     if(btn){ btn.disabled=false; btn.textContent='🔄 Regenerar'; }
     if(status){ status.innerHTML='<span style="color:#70d098">●</span> Listo · '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); }
-    openAI();
   } catch(e){
     if(btn){ btn.disabled=false; btn.textContent='🔄 Regenerar'; }
     if(status){ status.innerHTML='<span style="color:#f09090">● Error</span>'; }
@@ -1874,7 +1974,21 @@ function rAll(){
   const by=document.getElementById('aiBannerYear');
   if(by) by.textContent=CY;
 }
-function chY(d){const ny=CY+d;if(ny<2026){toast('Solo se permiten años 2026 en adelante.','er');return;}CY=ny;rAll();}
+function chY(d){
+  const ny=CY+d;
+  if(ny<2020){toast('⚠️ Año mínimo: 2020','er');return;}
+  CY=ny;
+  if(useSupabase&&sbClient){
+    sbLoadIndicadores(ny).then(rows=>{
+      if(rows&&rows.length>0){
+        DB=DB.filter(r=>parseInt(r.ano)!==ny);
+        rows.forEach(r=>DB.push(sbRecordToLocal(r)));
+        toast('🗄️ '+rows.length+' indicadores año '+ny,'ok');
+      }
+      rAll();
+    }).catch(()=>rAll());
+  } else { rAll(); }
+}
 
 // ── POPULATE PROCS ──
 function popProcs(){
@@ -2662,7 +2776,53 @@ function saveEntry(){
     r[k+'_fecha']=ps[i]?ps[i].fecha:'';r[k+'_obs']=ps[i]?ps[i].obs:'';
   });
   cMov('entryMov');rAll();
-  toast('✅ Seguimiento guardado correctamente.','ok');
+
+  // Sync to Supabase if connected
+  if(useSupabase && sbClient){
+    const r2=DB[entryIdx];
+    const medicion = {
+      indicador_id: r2._indicador_id,
+      ano: parseInt(r2.ano),
+      var_a1: r2.var_a1?parseFloat(r2.var_a1):null,
+      var_b1: r2.var_b1?parseFloat(r2.var_b1):null,
+      resultado1: r2.resultado1?parseFloat(r2.resultado1):null,
+      var_a2: r2.var_a2?parseFloat(r2.var_a2):null,
+      var_b2: r2.var_b2?parseFloat(r2.var_b2):null,
+      resultado2: r2.resultado2?parseFloat(r2.resultado2):null,
+      var_a3: r2.var_a3?parseFloat(r2.var_a3):null,
+      var_b3: r2.var_b3?parseFloat(r2.var_b3):null,
+      resultado3: r2.resultado3?parseFloat(r2.resultado3):null,
+      var_a4: r2.var_a4?parseFloat(r2.var_a4):null,
+      var_b4: r2.var_b4?parseFloat(r2.var_b4):null,
+      resultado4: r2.resultado4?parseFloat(r2.resultado4):null,
+      resultado_alcanzado: r2.resultado_alcanzado?parseFloat(r2.resultado_alcanzado):null,
+      analisis: r2.analisis||null,
+      obs: r2.obs||null,
+      evaluador: r2.evaluador||null,
+      cargo: r2.cargo||null,
+    };
+    if(r2._indicador_id){
+      sbSaveMedicion(medicion).then(ok=>{
+        if(ok){
+          // Save plans
+          const planes=[
+            {actividad:r2.pa1_actividad,responsable:r2.pa1_responsable,fecha:r2.pa1_fecha,obs:r2.pa1_obs,estado:'pend'},
+            {actividad:r2.pa2_actividad,responsable:r2.pa2_responsable,fecha:r2.pa2_fecha,obs:r2.pa2_obs,estado:'pend'},
+            {actividad:r2.pa3_actividad,responsable:r2.pa3_responsable,fecha:r2.pa3_fecha,obs:r2.pa3_obs,estado:'pend'},
+            {actividad:r2.pa4_actividad,responsable:r2.pa4_responsable,fecha:r2.pa4_fecha,obs:r2.pa4_obs,estado:'pend'},
+          ].filter(p=>p.actividad);
+          if(r2._medicion_id) sbSavePlanes(r2._medicion_id, planes);
+          toast('✅ Guardado en Supabase ☁️','ok');
+        } else {
+          toast('✅ Guardado localmente (sin sync Supabase)','ok');
+        }
+      });
+    } else {
+      toast('✅ Seguimiento guardado correctamente.','ok');
+    }
+  } else {
+    toast('✅ Seguimiento guardado correctamente.','ok');
+  }
 }
 
 // ═══ DETAIL MODAL ═══
