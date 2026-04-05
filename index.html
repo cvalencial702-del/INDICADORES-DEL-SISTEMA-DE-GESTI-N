@@ -14,7 +14,6 @@ const lines2=text.split('\n');
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>HSEQ – Auditoría Ambiental</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -561,24 +560,34 @@ tbody td{padding:9px 12px;vertical-align:middle}
 </head>
 <body>
 
-<!-- AUTH -->
-<div id="authWrap">
-  <div class="auth-card">
-    <img id="authLogo" class="auth-logo" alt="AA">
-    <h2>Sistema HSEQ</h2>
-    <p>Gestión de Indicadores — Acceso seguro</p>
-    <input class="auth-inp" id="aUser" type="text" placeholder="Usuario" autocomplete="username">
-    <input class="auth-inp" id="aPass" type="password" placeholder="Contraseña" autocomplete="current-password">
-    <button class="auth-btn" onclick="doLogin()">Ingresar al Sistema</button>
-    <div class="auth-err" id="aErr">Usuario o contraseña incorrectos.</div>
-    <div id="sbStatusBadge" style="display:none;margin-top:10px;
-      background:rgba(20,112,64,.15);border:1px solid rgba(20,112,64,.3);
-      border-radius:6px;padding:7px 12px;font-size:.73rem;font-weight:700;color:#147040">
-      🗄️ Supabase conectado — ingrese con su email
+<!-- EDIT AUTH MODAL (solo para modificar datos) -->
+<div class="mov" id="editAuthMov">
+  <div class="modal" style="max-width:380px">
+    <div class="mhd" style="background:linear-gradient(135deg,#1a3460,#2a5090)">
+      <div>
+        <div class="mhd-tag" id="editAuthTag">🔒 Acción protegida</div>
+        <h3>Se requiere contraseña</h3>
+        <p>Ingrese su clave para continuar</p>
+      </div>
+      <button class="xcl" onclick="cancelEditAuth()">✕</button>
     </div>
-    <div class="auth-hint">
-      Local: <b>admin</b> / <b>2025</b> &nbsp;|&nbsp; <b>viewer</b> / <b>ver2025</b><br>
-      <span style="opacity:.7;font-size:.68rem">Supabase: use su email registrado</span>
+    <div class="mbd">
+      <div style="margin-bottom:14px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--soft);
+          text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Contraseña</div>
+        <input class="pc-inp" id="editAuthPass" type="password"
+          placeholder="Ingrese su contraseña"
+          style="width:100%;font-size:.9rem;padding:10px 12px"
+          onkeydown="if(event.key==='Enter')confirmEditAuth()">
+        <div id="editAuthErr" style="display:none;color:var(--bd);
+          font-size:.75rem;margin-top:6px;font-weight:600">
+          ❌ Contraseña incorrecta
+        </div>
+      </div>
+      <div class="srow">
+        <button class="btn-s" onclick="cancelEditAuth()">Cancelar</button>
+        <button class="btn-p gn" onclick="confirmEditAuth()">✅ Confirmar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1425,7 +1434,7 @@ async function runAI(tab){
     const result={text,tab,timestamp:new Date().toLocaleTimeString('es-CO'),year:CY};
     aiCache[CY+'_'+tab]=result;
     // Save to Supabase cache
-    if(useSupabase && sbClient) sbSaveAICache(tab, CY, text);
+    if(sbReady) sbSaveAICache(tab, CY, text);
     renderAIResult(result,tab);
   } catch(e){
     clearInterval(dotInt);
@@ -1543,222 +1552,270 @@ function renderAIResult(result, tab){
   }
 }
 
-// ═══ SUPABASE CONFIG ═══
-// Configurar con sus credenciales de Supabase
-// Obtener en: https://supabase.com/dashboard → Project Settings → API
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE — API REST directa con fetch() (compatible con file://)
+// ═══════════════════════════════════════════════════════════════
 const SUPABASE_URL  = window.SUPABASE_URL  || '';
 const SUPABASE_ANON = window.SUPABASE_ANON || '';
 
-let sbClient = null;
-let sbUser   = null;
-let sbRole   = 'viewer';
-let useSupabase = false;  // true cuando Supabase está configurado y el usuario autenticado
+// Headers comunes para todas las peticiones
+function sbHeaders(extra){
+  return Object.assign({
+    'apikey':        SUPABASE_ANON,
+    'Authorization': 'Bearer ' + SUPABASE_ANON,
+    'Content-Type':  'application/json',
+    'Prefer':        'return=representation',
+  }, extra||{});
+}
 
+// URL base para la API REST
+function sbUrl(table, params){
+  const base = SUPABASE_URL + '/rest/v1/' + table;
+  return params ? base + '?' + params : base;
+}
+
+// ── Inicializar — solo verifica que hay credenciales ─────────
+let sbReady = false;
 function initSupabase(){
-  if(!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('TU-PROJECT')) return false;
+  if(!SUPABASE_URL || !SUPABASE_ANON) return false;
+  sbReady = true;
+  console.log('✅ Supabase REST listo:', SUPABASE_URL);
+  return true;
+}
+
+// ── GET genérico ─────────────────────────────────────────────
+async function sbGet(table, params){
+  const res = await fetch(sbUrl(table, params), {
+    method: 'GET',
+    headers: sbHeaders({ 'Accept': 'application/json' })
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(table+': '+e); }
+  return res.json();
+}
+
+// ── POST (insert) ─────────────────────────────────────────────
+async function sbPost(table, body){
+  const res = await fetch(sbUrl(table), {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': 'return=representation' }),
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(table+': '+e); }
+  return res.json();
+}
+
+// ── UPSERT ────────────────────────────────────────────────────
+async function sbUpsert(table, body, onConflict){
+  const prefer = 'return=representation,resolution=merge-duplicates';
+  const url = sbUrl(table) + (onConflict ? '?on_conflict='+onConflict : '');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: sbHeaders({ 'Prefer': prefer }),
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(table+' upsert: '+e); }
+  return res.json();
+}
+
+// ── DELETE ────────────────────────────────────────────────────
+async function sbDelete(table, params){
+  const res = await fetch(sbUrl(table, params), {
+    method: 'DELETE',
+    headers: sbHeaders()
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(table+' delete: '+e); }
+  return true;
+}
+
+// ── Mapa de IDs ───────────────────────────────────────────────
+let _indIdMap = {};   // definicion → indicador.id
+let _medIdMap = {};   // "definicion|ano" → medicion.id
+
+async function sbCargarMapaIds(){
+  if(!sbReady) return;
   try {
-    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    useSupabase = true;
-    console.log('✅ Supabase conectado:', SUPABASE_URL);
-    // Mostrar barra de diagnóstico
-    const bar = document.getElementById('sbDiagBar');
-    const urlEl = document.getElementById('sbDiagUrl');
-    if(bar) bar.style.display='flex';
-    if(urlEl) urlEl.textContent = SUPABASE_URL.replace('https://','').split('.')[0]+'...supabase.co';
-    return true;
-  } catch(e){
-    console.warn('⚠️ Supabase no disponible, usando datos locales:', e.message);
+    const data = await sbGet('indicadores', 'select=id,definicion&activo=eq.true');
+    _indIdMap = {};
+    (data||[]).forEach(r => { _indIdMap[r.definicion.trim()] = r.id; });
+    console.log('✅ Mapa IDs:', Object.keys(_indIdMap).length, 'indicadores');
+  } catch(e){ console.error('❌ sbCargarMapaIds:', e.message); }
+}
+
+async function sbCargarMedicionesMap(){
+  if(!sbReady) return;
+  try {
+    const data = await sbGet('mediciones', 'select=id,indicador_id,ano');
+    _medIdMap = {};
+    (data||[]).forEach(r => {
+      const def = Object.keys(_indIdMap).find(k => _indIdMap[k] === r.indicador_id);
+      if(def) _medIdMap[def.trim()+'|'+r.ano] = r.id;
+    });
+    console.log('✅ Mapa mediciones:', Object.keys(_medIdMap).length, 'registros');
+  } catch(e){ console.error('❌ sbCargarMedicionesMap:', e.message); }
+}
+
+function sbGetIndId(definicion){
+  return _indIdMap[definicion?.trim()] || null;
+}
+function sbGetMedId(definicion, ano){
+  return _medIdMap[(definicion?.trim()+'|'+ano)] || null;
+}
+
+// ── Cargar indicadores del año ────────────────────────────────
+async function sbCargarIndicadores(ano){
+  if(!sbReady) return null;
+  try {
+    const data = await sbGet('dashboard_indicadores',
+      'ano=eq.'+ano+'&order=definicion');
+    return data;
+  } catch(e){ console.error('❌ sbCargarIndicadores:', e.message); return null; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// GUARDAR — función principal
+// ══════════════════════════════════════════════════════════════
+async function sbGuardar(r){
+  if(!sbReady){
+    console.warn('sbGuardar: Supabase no inicializado');
     return false;
   }
-}
 
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Autenticación
-// ════════════════════════════════════════════════════════════
-async function sbLogin(email, password){
-  if(!sbClient) return null;
-  const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-  if(error) throw error;
-  // Get role from usuarios_hseq table
-  const { data: usr } = await sbClient
-    .from('usuarios_hseq')
-    .select('rol,nombre,cargo')
-    .eq('username', email)
-    .maybeSingle();
-  sbUser = data.user;
-  sbRole = usr?.rol || 'viewer';
-  return { session: data.session, rol: sbRole, nombre: usr?.nombre };
-}
+  const def   = r.definicion?.trim();
+  const ano   = parseInt(r.ano);
+  let   indId = r._indicador_id || sbGetIndId(def);
 
-async function sbLogout(){
-  if(sbClient) await sbClient.auth.signOut();
-  sbUser = null; sbRole = 'viewer';
-}
-
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Cargar indicadores del año activo
-// ════════════════════════════════════════════════════════════
-async function sbLoadIndicadores(ano){
-  if(!sbClient) return null;
-  try {
-    const { data, error } = await sbClient
-      .from('dashboard_indicadores')
-      .select('*')
-      .eq('ano', ano)
-      .order('definicion');
-    if(error) throw error;
-    return data;
-  } catch(e){
-    console.warn('sbLoadIndicadores error:', e.message);
-    return null;
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Guardar medición (upsert)
-// ════════════════════════════════════════════════════════════
-async function sbSaveMedicion(medicion){
-  if(!sbClient) return false;
-  try {
-    console.log('💾 Guardando en Supabase — indicador_id:', medicion.indicador_id, '| año:', medicion.ano);
-    const { data, error } = await sbClient
-      .from('mediciones')
-      .upsert(medicion, { onConflict: 'indicador_id,ano' })
-      .select('id').single();
-    if(error){
-      console.error('❌ sbSaveMedicion error:', error);
-      toast('❌ Supabase: '+error.message,'er');
+  // Buscar ID si no está en cache
+  if(!indId){
+    console.log('🔍 Buscando indicador:', def);
+    try {
+      const data = await sbGet('indicadores',
+        'select=id&definicion=eq.'+encodeURIComponent(def)+'&limit=1');
+      if(!data || !data[0]){
+        toast('❌ Indicador no encontrado en BD — ejecute el seed SQL','er');
+        console.error('❌ Indicador no en BD:', def);
+        return false;
+      }
+      indId = data[0].id;
+      _indIdMap[def] = indId;
+      if(r) r._indicador_id = indId;
+    } catch(e){
+      toast('❌ Error buscando indicador: '+e.message,'er');
       return false;
     }
-    console.log('✅ Medición guardada — id:', data?.id);
+  }
+
+  // Construir objeto medición
+  const n = v => (v !== '' && v !== null && v !== undefined) ? parseFloat(v) : null;
+  const medicion = {
+    indicador_id:        indId,
+    ano:                 ano,
+    var_a1:              n(r.var_a1),  var_b1: n(r.var_b1), resultado1: n(r.resultado1),
+    var_a2:              n(r.var_a2),  var_b2: n(r.var_b2), resultado2: n(r.resultado2),
+    var_a3:              n(r.var_a3),  var_b3: n(r.var_b3), resultado3: n(r.resultado3),
+    var_a4:              n(r.var_a4),  var_b4: n(r.var_b4), resultado4: n(r.resultado4),
+    resultado_alcanzado: n(r.resultado_alcanzado),
+    analisis:            r.analisis  || null,
+    obs:                 r.obs       || null,
+    evaluador:           r.evaluador || null,
+    cargo:               r.cargo     || null,
+  };
+
+  console.log('💾 Guardando:', def, '| año:', ano, '| ind_id:', indId);
+
+  try {
+    const saved = await sbUpsert('mediciones', medicion, 'indicador_id,ano');
+    const medId = Array.isArray(saved) ? saved[0]?.id : saved?.id;
+    if(!medId){ toast('❌ No se obtuvo id de medición','er'); return false; }
+
+    console.log('✅ Medición guardada — id:', medId);
+    _medIdMap[def+'|'+ano] = medId;
+    if(r) r._medicion_id = medId;
+
+    // Guardar planes de acción
+    const planes = [
+      {num:1, act:r.pa1_actividad, resp:r.pa1_responsable, fecha:r.pa1_fecha, obs:r.pa1_obs},
+      {num:2, act:r.pa2_actividad, resp:r.pa2_responsable, fecha:r.pa2_fecha, obs:r.pa2_obs},
+      {num:3, act:r.pa3_actividad, resp:r.pa3_responsable, fecha:r.pa3_fecha, obs:r.pa3_obs},
+      {num:4, act:r.pa4_actividad, resp:r.pa4_responsable, fecha:r.pa4_fecha, obs:r.pa4_obs},
+    ].filter(p => p.act && p.act.trim());
+
+    await sbDelete('planes_accion', 'medicion_id=eq.'+medId);
+
+    if(planes.length){
+      const rows = planes.map(p => ({
+        medicion_id:       medId,
+        numero:            p.num,
+        actividad:         p.act.trim(),
+        responsable:       p.resp  || null,
+        fecha_seguimiento: p.fecha || null,
+        obs_cierre:        p.obs   || null,
+        estado:            'pend',
+      }));
+      await sbPost('planes_accion', rows);
+      console.log('✅ Planes guardados:', planes.length);
+    }
+
     return true;
+
   } catch(e){
-    console.error('❌ sbSaveMedicion catch:', e);
+    console.error('❌ sbGuardar error:', e.message);
     toast('❌ Error Supabase: '+e.message,'er');
     return false;
   }
 }
 
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Guardar planes de acción
-// ════════════════════════════════════════════════════════════
-async function sbSavePlanes(medicionId, planes){
-  if(!sbClient) return false;
-  try {
-    // Delete existing
-    await sbClient.from('planes_accion').delete().eq('medicion_id', medicionId);
-    if(!planes.length) return true;
-    const rows = planes.filter(p=>p.actividad).map((p,i)=>({
-      medicion_id: medicionId,
-      numero: i+1,
-      actividad: p.actividad,
-      responsable: p.responsable||null,
-      fecha_seguimiento: p.fecha||null,
-      obs_cierre: p.obs||null,
-      estado: p.estado||'pend',
-    }));
-    if(!rows.length) return true;
-    const { error } = await sbClient.from('planes_accion').insert(rows);
-    if(error) throw error;
-    return true;
-  } catch(e){
-    console.warn('sbSavePlanes error:', e.message);
-    return false;
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Crear / editar / eliminar indicador
-// ════════════════════════════════════════════════════════════
-async function sbCreateIndicador(ind){
-  if(!sbClient) return null;
-  const { data, error } = await sbClient.from('indicadores').insert(ind).select().single();
-  if(error) throw error;
-  return data;
-}
-
-async function sbUpdateIndicador(id, changes){
-  if(!sbClient) return false;
-  const { error } = await sbClient.from('indicadores').update(changes).eq('id', id);
-  if(error) throw error;
-  return true;
-}
-
-async function sbDeleteIndicador(id){
-  if(!sbClient) return false;
-  const { error } = await sbClient.from('indicadores').update({activo:false}).eq('id', id);
-  if(error) throw error;
-  return true;
-}
-
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Cache de análisis IA
-// ════════════════════════════════════════════════════════════
-async function sbGetAICache(tipo, ano, indicadorId=null){
-  if(!sbClient) return null;
-  let q = sbClient.from('analisis_ia').select('contenido,created_at')
-    .eq('tipo', tipo).eq('ano', ano);
-  if(indicadorId) q = q.eq('indicador_id', indicadorId);
-  else q = q.is('indicador_id', null);
-  const { data } = await q.maybeSingle();
-  return data?.contenido || null;
-}
-
-async function sbSaveAICache(tipo, ano, contenido, indicadorId=null){
-  if(!sbClient) return;
-  await sbClient.from('analisis_ia').upsert(
-    { tipo, ano, indicador_id: indicadorId||null, contenido,
-      modelo: 'claude-sonnet-4-20250514' },
-    { onConflict: 'tipo,ano,indicador_id' }
-  );
-}
-
-// ════════════════════════════════════════════════════════════
-// SUPABASE: Convertir formato DB → formato local (DB variable)
-// ════════════════════════════════════════════════════════════
+// ── Convertir fila BD → objeto local ─────────────────────────
 function sbRecordToLocal(row){
-  // dashboard_indicadores view returns flat merged record
   return {
-    lider: row.lider||'',
-    tipo_proceso: row.tipo_proceso||'',
-    proceso: row.proceso||'',
-    modulo: row.modulo||'SST',
-    estrategia: row.estrategia||'',
-    tipo_indicador: row.tipo_indicador||'RESULTADO',
-    definicion: row.definicion||'',
-    interpretacion: row.interpretacion||'',
-    meta: row.meta||'',
-    metodo_calculo: row.metodo_calculo||'',
-    fuente: row.fuente||'',
-    frecuencia: row.frecuencia||'TRIMESTRAL',
-    var_a1: row.var_a1!=null?String(row.var_a1):'',
-    var_b1: row.var_b1!=null?String(row.var_b1):'',
-    resultado1: row.resultado1!=null?String(row.resultado1):'',
-    var_a2: row.var_a2!=null?String(row.var_a2):'',
-    var_b2: row.var_b2!=null?String(row.var_b2):'',
-    resultado2: row.resultado2!=null?String(row.resultado2):'',
-    var_a3: row.var_a3!=null?String(row.var_a3):'',
-    var_b3: row.var_b3!=null?String(row.var_b3):'',
-    resultado3: row.resultado3!=null?String(row.resultado3):'',
-    var_a4: row.var_a4!=null?String(row.var_a4):'',
-    var_b4: row.var_b4!=null?String(row.var_b4):'',
-    resultado4: row.resultado4!=null?String(row.resultado4):'',
-    resultado_alcanzado: row.resultado_alcanzado!=null?String(row.resultado_alcanzado):'',
-    analisis: row.analisis||'',
-    obs: row.obs||'',
-    pa1_actividad:'',pa1_responsable:'',pa1_fecha:'',pa1_obs:'',
-    pa2_actividad:'',pa2_responsable:'',pa2_fecha:'',pa2_obs:'',
-    pa3_actividad:'',pa3_responsable:'',pa3_fecha:'',pa3_obs:'',
-    pa4_actividad:'',pa4_responsable:'',pa4_fecha:'',pa4_obs:'',
-    evaluador: row.evaluador||'',
-    cargo: row.cargo||'',
-    ano: String(row.ano||2026),
-    objetivo: row.objetivo||'',
-    comunicar: row.comunicar||'',
-    // Supabase IDs for updates
-    _indicador_id: row.indicador_id,
-    _medicion_id: row.medicion_id,
+    lider: row.lider||'', tipo_proceso: row.tipo_proceso||'',
+    proceso: row.proceso||'', modulo: row.modulo||'SST',
+    estrategia: row.estrategia||'', tipo_indicador: row.tipo_indicador||'RESULTADO',
+    definicion: row.definicion||'', interpretacion: row.interpretacion||'',
+    meta: row.meta||'', metodo_calculo: row.metodo_calculo||'',
+    fuente: row.fuente||'', frecuencia: row.frecuencia||'TRIMESTRAL',
+    var_a1:  row.var_a1  != null ? String(row.var_a1)  : '',
+    var_b1:  row.var_b1  != null ? String(row.var_b1)  : '',
+    resultado1: row.resultado1 != null ? String(row.resultado1) : '',
+    var_a2:  row.var_a2  != null ? String(row.var_a2)  : '',
+    var_b2:  row.var_b2  != null ? String(row.var_b2)  : '',
+    resultado2: row.resultado2 != null ? String(row.resultado2) : '',
+    var_a3:  row.var_a3  != null ? String(row.var_a3)  : '',
+    var_b3:  row.var_b3  != null ? String(row.var_b3)  : '',
+    resultado3: row.resultado3 != null ? String(row.resultado3) : '',
+    var_a4:  row.var_a4  != null ? String(row.var_a4)  : '',
+    var_b4:  row.var_b4  != null ? String(row.var_b4)  : '',
+    resultado4: row.resultado4 != null ? String(row.resultado4) : '',
+    resultado_alcanzado: row.resultado_alcanzado != null ? String(row.resultado_alcanzado) : '',
+    analisis: row.analisis||'', obs: row.obs||'',
+    pa1_actividad:'', pa1_responsable:'', pa1_fecha:'', pa1_obs:'',
+    pa2_actividad:'', pa2_responsable:'', pa2_fecha:'', pa2_obs:'',
+    pa3_actividad:'', pa3_responsable:'', pa3_fecha:'', pa3_obs:'',
+    pa4_actividad:'', pa4_responsable:'', pa4_fecha:'', pa4_obs:'',
+    evaluador: row.evaluador||'', cargo: row.cargo||'',
+    ano: String(row.ano||2026), objetivo: row.objetivo||'', comunicar: row.comunicar||'',
+    _indicador_id: row.indicador_id || null,
+    _medicion_id:  row.medicion_id  || null,
   };
+}
+
+// ── Cache IA ──────────────────────────────────────────────────
+async function sbGetAICache(tipo, ano){
+  if(!sbReady) return null;
+  try {
+    const data = await sbGet('analisis_ia',
+      'tipo=eq.'+tipo+'&ano=eq.'+ano+'&indicador_id=is.null&select=contenido&limit=1');
+    return data?.[0]?.contenido || null;
+  } catch(e){ return null; }
+}
+
+async function sbSaveAICache(tipo, ano, contenido){
+  if(!sbReady) return;
+  try {
+    await sbUpsert('analisis_ia',
+      { tipo, ano, indicador_id: null, contenido, modelo:'claude-sonnet-4-20250514' },
+      'tipo,ano,indicador_id'
+    );
+  } catch(e){ console.warn('sbSaveAICache:', e.message); }
 }
 
 // ═══ DATA & STATE ═══
@@ -1769,6 +1826,8 @@ let CY=2026, editMode=false, cardView='card';
 let entryIdx=null, delIdx=null, planData=[], hPage=1, hPgSz=15;
 let chTipo=null, chFreq=null, chRes=null;
 let isAdmin=false;
+let pendingAction=null;   // función a ejecutar tras autenticar
+let pendingLabel='';      // etiqueta para el modal
 
 const MMAP={'RECURSOS HUMANOS':'SST','MEJORAMIENTO Y CONTROL':'SST','ADMINISTRATIVO':'SST','SGA':'Higiene/Amb.','MEDICINA':'SST','FORMACION':'SST','MEDICION':'SST'};
 const MCOL={'SST':'#ef4444','Higiene/Amb.':'#22c55e'};
@@ -1849,6 +1908,52 @@ function tChip(t){const m={ESTRUCTURA:'tES',PROCESO:'tPR',RESULTADO:'tRE',COBERT
 
 // ── AUTH ──
 const USERS=[{u:'admin',p:'2025',admin:true},{u:'hseq',p:'2025',admin:true},{u:'viewer',p:'ver2025',admin:false},{u:'consulta',p:'ver2025',admin:false}];
+// ══════════════════════════════════════════════
+// SISTEMA DE AUTH PARA MODIFICACIONES
+// ══════════════════════════════════════════════
+
+// Solicitar clave antes de ejecutar una acción
+function requireAuth(label, action){
+  pendingAction = action;
+  pendingLabel  = label;
+  document.getElementById('editAuthTag').textContent = '🔒 '+label;
+  document.getElementById('editAuthPass').value = '';
+  document.getElementById('editAuthErr').style.display = 'none';
+  oMov('editAuthMov');
+  setTimeout(()=>document.getElementById('editAuthPass').focus(), 150);
+}
+
+function confirmEditAuth(){
+  const pass = document.getElementById('editAuthPass').value;
+  const errEl = document.getElementById('editAuthErr');
+  // Verificar contra USERS
+  const ok = USERS.find(x=>x.p===pass && x.admin);
+  if(!ok){
+    errEl.style.display='block';
+    document.getElementById('editAuthPass').value='';
+    document.getElementById('editAuthPass').focus();
+    return;
+  }
+  // Auth OK
+  isAdmin=true; editMode=true;
+  cMov('editAuthMov');
+  errEl.style.display='none';
+  // Activar badge si Supabase disponible
+  const hb=document.getElementById('sbBadge');
+  if(hb && sbReady) hb.style.display='flex';
+  // Ejecutar la acción pendiente
+  if(typeof pendingAction==='function'){
+    const fn=pendingAction;
+    pendingAction=null;
+    fn();
+  }
+}
+
+function cancelEditAuth(){
+  pendingAction=null;
+  cMov('editAuthMov');
+}
+
 async function doLogin(){
   const u=document.getElementById('aUser').value.trim();
   const p=document.getElementById('aPass').value;
@@ -1856,8 +1961,8 @@ async function doLogin(){
   const btn=document.querySelector('.auth-btn');
   if(btn){btn.textContent='Conectando...';btn.disabled=true;}
 
-  // Try Supabase first (if configured)
-  if(useSupabase && u.includes('@')){
+  // ── INTENTO 1: Login con Supabase Auth (email) ──
+  if(sbReady && u.includes('@')){
     try {
       const result = await sbLogin(u, p);
       isAdmin = result.rol==='admin'||result.rol==='editor';
@@ -1877,20 +1982,61 @@ async function doLogin(){
     }
   }
 
-  // Fallback: local auth
+  // ── INTENTO 2: Login local (admin/2025, hseq/2025, etc.) ──
   const uLow=u.toLowerCase();
   const ok=USERS.find(x=>x.u===uLow&&x.p===p);
   if(btn){btn.textContent='Ingresar al Sistema';btn.disabled=false;}
-  if(ok){
-    isAdmin=ok.admin;
-    document.getElementById('authWrap').style.display='none';
-    toast(useSupabase?'⚠️ Modo local (configure email Supabase)':'🔒 Modo local','in');
-    init();
-  } else {
+  if(!ok){
     errEl.textContent='Usuario o contraseña incorrectos.';
     errEl.style.display='block';
     document.getElementById('aPass').value='';
+    return;
   }
+
+  // Login local exitoso
+  isAdmin=ok.admin;
+  editMode=isAdmin;
+  document.getElementById('authWrap').style.display='none';
+
+  // ── Si Supabase está configurado, activarlo en background ──
+  if(sbReady){
+    toast('🔄 Cargando datos desde Supabase...','in');
+    try {
+      const rows = await sbLoadIndicadores(CY);
+      if(rows && rows.length > 0){
+        DB = rows.map(r => sbRecordToLocal(r));
+        await sbLoadPlanes();
+        useSupabase = true;
+        const hb2=document.getElementById('sbBadge');
+        if(hb2) hb2.style.display='flex';
+        const diagData=document.getElementById('sbDiagData');
+        const diagBar=document.getElementById('sbDiagBar');
+        if(diagBar) diagBar.style.display='flex';
+        if(diagData) diagData.textContent='● '+DB.length+' indicadores año '+CY;
+        toast('✅ Supabase activo — '+DB.length+' indicadores cargados','ok');
+      } else {
+        // Sin datos en Supabase para este año — usar local pero
+        // igualmente intentar guardar con lookup por definicion
+        useSupabase = true;
+        toast('⚠️ Sin datos año '+CY+' en Supabase — usando datos locales','in');
+        // Cargar IDs de Supabase para todos los registros locales
+        try {
+          const {data:inds} = await SBCLIENT_REMOVED('indicadores').select('id,definicion');
+          if(inds) inds.forEach(ind=>{
+            DB.filter(r=>r.definicion===ind.definicion).forEach(r=>r._indicador_id=ind.id);
+          });
+          console.log('✅ IDs de indicadores cargados desde Supabase');
+        } catch(e2){ console.warn('No se pudieron cargar IDs:', e2.message); }
+      }
+    } catch(e){
+      console.warn('Supabase no disponible:', e.message);
+      toast('⚠️ Supabase sin conexión — trabajando en modo local','in');
+    }
+  } else {
+    toast('🔒 Modo local','in');
+  }
+
+  init();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('authWrap').style.display!=='none')doLogin();});
 
@@ -1901,22 +2047,6 @@ function init(){
   popProcs();
   rAll();
   setTimeout(()=>{ autoGenAI(); }, 1200);
-  // Si Supabase está configurado, intentar cargar IDs aunque sea login local
-  if(sbClient && useSupabase){
-    sbLoadIndicadores(CY).then(rows=>{
-      if(rows && rows.length>0){
-        // Solo actualizar los _indicador_id y _medicion_id, no reemplazar DB
-        rows.forEach(row=>{
-          const local = DB.find(r=>r.definicion===row.definicion && r.ano===String(row.ano));
-          if(local){
-            local._indicador_id = row.indicador_id;
-            local._medicion_id  = row.medicion_id;
-          }
-        });
-        console.log('✅ IDs de Supabase cargados para modo local');
-      }
-    }).catch(e=>console.warn('init sbLoad:', e.message));
-  }
 }
 
 // ── INIT WITH SUPABASE ──
@@ -1958,32 +2088,25 @@ async function initWithSupabase(){
 
 // ── LOAD PLANS FROM SUPABASE ──
 async function sbLoadPlanes(){
-  if(!sbClient) return;
+  if(!sbReady) return;
   try {
-    // Get medicion IDs for current records
     const medIds = [...new Set(DB.map(r=>r._medicion_id).filter(Boolean))];
     if(!medIds.length) return;
-    const { data:planes } = await sbClient
-      .from('planes_accion')
-      .select('*')
-      .in('medicion_id', medIds)
-      .order('numero');
+    const planes = await sbGet('planes_accion',
+      'medicion_id=in.('+medIds.join(',')+')'+'&order=numero');
     if(!planes) return;
-    // Group by medicion_id
     const byMed = {};
-    planes.forEach(p=>{ if(!byMed[p.medicion_id]) byMed[p.medicion_id]=[];  byMed[p.medicion_id].push(p); });
-    // Assign to DB records
+    planes.forEach(p=>{ (byMed[p.medicion_id]=byMed[p.medicion_id]||[]).push(p); });
     DB.forEach(r=>{
       const ps = byMed[r._medicion_id]||[];
       ['pa1','pa2','pa3','pa4'].forEach((k,i)=>{
-        const p=ps[i];
-        r[k+'_actividad']=p?.actividad||'';
-        r[k+'_responsable']=p?.responsable||'';
-        r[k+'_fecha']=p?.fecha_seguimiento||'';
-        r[k+'_obs']=p?.obs_cierre||'';
+        r[k+'_actividad']   = ps[i]?.actividad||'';
+        r[k+'_responsable'] = ps[i]?.responsable||'';
+        r[k+'_fecha']       = ps[i]?.fecha_seguimiento||'';
+        r[k+'_obs']         = ps[i]?.obs_cierre||'';
       });
     });
-  } catch(e){ console.warn('sbLoadPlanes error:', e); }
+  } catch(e){ console.warn('sbLoadPlanes:', e.message); }
 }
 
 function autoGenAI(){
@@ -2030,12 +2153,21 @@ function chY(d){
   const ny=CY+d;
   if(ny<2020){toast('⚠️ Año mínimo: 2020','er');return;}
   CY=ny;
-  if(useSupabase&&sbClient){
-    sbLoadIndicadores(ny).then(rows=>{
+  if(sbReady){
+    sbCargarIndicadores(ny).then(rows=>{
       if(rows&&rows.length>0){
         DB=DB.filter(r=>parseInt(r.ano)!==ny);
         rows.forEach(r=>DB.push(sbRecordToLocal(r)));
+        // Inyectar IDs en nuevos registros
+        DB.filter(r=>parseInt(r.ano)===ny).forEach(r=>{
+          r._indicador_id = r._indicador_id || sbGetIndId(r.definicion);
+        });
         toast('🗄️ '+rows.length+' indicadores año '+ny,'ok');
+      } else {
+        // Inyectar IDs en registros locales del nuevo año
+        DB.filter(r=>parseInt(r.ano)===ny).forEach(r=>{
+          r._indicador_id = sbGetIndId(r.definicion);
+        });
       }
       rAll();
     }).catch(()=>rAll());
@@ -2803,100 +2935,54 @@ function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;
 // ═══ SAVE ENTRY ═══
 function saveEntry(){
   if(entryIdx===null)return;
-  const r=DB[entryIdx];
-  const freq=r.frecuencia;
-  const n=freq==='TRIMESTRAL'?4:freq==='SEMESTRAL'?2:1;
-  const ks=[['var_a1','var_b1','resultado1'],['var_a2','var_b2','resultado2'],
-            ['var_a3','var_b3','resultado3'],['var_a4','var_b4','resultado4']];
-  const vs=[];
+  if(!isAdmin){ requireAuth('Guardar seguimiento', saveEntry); return; }
+
+  const r   = DB[entryIdx];
+  const freq = r.frecuencia;
+  const n    = freq==='TRIMESTRAL'?4:freq==='SEMESTRAL'?2:1;
+  const ks   = [['var_a1','var_b1','resultado1'],['var_a2','var_b2','resultado2'],
+                ['var_a3','var_b3','resultado3'],['var_a4','var_b4','resultado4']];
+  const vs   = [];
+
   for(let i=0;i<n;i++){
-    const va=document.getElementById('pa_'+i)?.value||'';
-    const vb=document.getElementById('pb_'+i)?.value||'';
-    if(vb&&parseFloat(vb)===0){toast('⚠ Variable B no puede ser cero en período '+(i+1),'er');return;}
-    r[ks[i][0]]=va;r[ks[i][1]]=vb;
-    if(va&&vb&&parseFloat(vb)!==0){const res=parseFloat(va)/parseFloat(vb);r[ks[i][2]]=res.toFixed(6);vs.push(res);}
+    const va = document.getElementById('pa_'+i)?.value||'';
+    const vb = document.getElementById('pb_'+i)?.value||'';
+    if(vb && parseFloat(vb)===0){ toast('⚠ Variable B no puede ser cero en período '+(i+1),'er'); return; }
+    r[ks[i][0]]=va; r[ks[i][1]]=vb;
+    if(va&&vb&&parseFloat(vb)!==0){ const res=parseFloat(va)/parseFloat(vb); r[ks[i][2]]=res.toFixed(6); vs.push(res); }
     else r[ks[i][2]]='';
   }
-  r.resultado_alcanzado=vs.length?(vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(6):'';
-  r.analisis=document.getElementById('eAnalisis').value||'';
-  r.obs=document.getElementById('eObs').value||'';
-  r.evaluador=document.getElementById('eEval').value||r.evaluador;
-  r.cargo=document.getElementById('eCargo').value||r.cargo;
-  const ps=planData.filter(p=>p.act);
-  ['pa1','pa2','pa3','pa4'].forEach((k,i)=>{
-    r[k+'_actividad']=ps[i]?ps[i].act:'';r[k+'_responsable']=ps[i]?ps[i].resp:'';
-    r[k+'_fecha']=ps[i]?ps[i].fecha:'';r[k+'_obs']=ps[i]?ps[i].obs:'';
-  });
-  const snapIdx = entryIdx;
-  const snapR = DB[snapIdx] ? JSON.parse(JSON.stringify(DB[snapIdx])) : null;
-  cMov('entryMov');rAll();
 
-  // Sync to Supabase if connected
-  if(sbClient && snapR){  // Intenta Supabase si está configurado (modo local o Supabase)
-    const r2 = snapR;
-    const medicion = {
-      indicador_id: r2._indicador_id,
-      ano: parseInt(r2.ano),
-      var_a1: r2.var_a1?parseFloat(r2.var_a1):null,
-      var_b1: r2.var_b1?parseFloat(r2.var_b1):null,
-      resultado1: r2.resultado1?parseFloat(r2.resultado1):null,
-      var_a2: r2.var_a2?parseFloat(r2.var_a2):null,
-      var_b2: r2.var_b2?parseFloat(r2.var_b2):null,
-      resultado2: r2.resultado2?parseFloat(r2.resultado2):null,
-      var_a3: r2.var_a3?parseFloat(r2.var_a3):null,
-      var_b3: r2.var_b3?parseFloat(r2.var_b3):null,
-      resultado3: r2.resultado3?parseFloat(r2.resultado3):null,
-      var_a4: r2.var_a4?parseFloat(r2.var_a4):null,
-      var_b4: r2.var_b4?parseFloat(r2.var_b4):null,
-      resultado4: r2.resultado4?parseFloat(r2.resultado4):null,
-      resultado_alcanzado: r2.resultado_alcanzado?parseFloat(r2.resultado_alcanzado):null,
-      analisis: r2.analisis||null,
-      obs: r2.obs||null,
-      evaluador: r2.evaluador||null,
-      cargo: r2.cargo||null,
-    };
-    async function doSave(indId){
-      if(!indId){
-        toast('⚠️ Indicador no en Supabase — ejecute el seed SQL','er');
-        console.warn('doSave: sin indId para:', r2.definicion);
-        return;
-      }
-      medicion.indicador_id = indId;
-      console.log('📤 doSave → indicador_id:', indId, '| definicion:', r2.definicion, '| año:', medicion.ano);
-      const ok = await sbSaveMedicion(medicion);
-      if(!ok){ toast('❌ Error al guardar. Abra F12 → Consola para ver el error.','er'); return; }
-      try {
-        const {data:med} = await sbClient
-          .from('mediciones').select('id')
-          .eq('indicador_id', indId).eq('ano', medicion.ano)
-          .maybeSingle();
-        const planes=[
-          {actividad:r2.pa1_actividad,responsable:r2.pa1_responsable,fecha:r2.pa1_fecha,obs:r2.pa1_obs,estado:'pend'},
-          {actividad:r2.pa2_actividad,responsable:r2.pa2_responsable,fecha:r2.pa2_fecha,obs:r2.pa2_obs,estado:'pend'},
-          {actividad:r2.pa3_actividad,responsable:r2.pa3_responsable,fecha:r2.pa3_fecha,obs:r2.pa3_obs,estado:'pend'},
-          {actividad:r2.pa4_actividad,responsable:r2.pa4_responsable,fecha:r2.pa4_fecha,obs:r2.pa4_obs,estado:'pend'},
-        ].filter(p=>p.actividad);
-        if(med?.id) await sbSavePlanes(med.id, planes);
-        if(DB[snapIdx]){ DB[snapIdx]._indicador_id=indId; if(med?.id) DB[snapIdx]._medicion_id=med.id; }
+  r.resultado_alcanzado = vs.length ? (vs.reduce((a,b)=>a+b,0)/vs.length).toFixed(6) : '';
+  r.analisis  = document.getElementById('eAnalisis').value||'';
+  r.obs       = document.getElementById('eObs').value||'';
+  r.evaluador = document.getElementById('eEval').value||r.evaluador;
+  r.cargo     = document.getElementById('eCargo').value||r.cargo;
+
+  const ps = planData.filter(p=>p.act);
+  ['pa1','pa2','pa3','pa4'].forEach((k,i)=>{
+    r[k+'_actividad']   = ps[i]?ps[i].act:'';
+    r[k+'_responsable'] = ps[i]?ps[i].resp:'';
+    r[k+'_fecha']       = ps[i]?ps[i].fecha:'';
+    r[k+'_obs']         = ps[i]?ps[i].obs:'';
+  });
+
+  cMov('entryMov');
+  rAll();
+
+  // Guardar en Supabase
+  if(sbReady){
+    sbGuardar(r).then(ok=>{
+      if(ok){
         toast('✅ Guardado en Supabase ☁️','ok');
-        const diagSave = document.getElementById('sbDiagSave');
-        if(diagSave){ diagSave.textContent='✅ Último guardado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
-      } catch(e){ toast('✅ Medición guardada (planes: '+e.message+')','ok'); }
-    }
-    if(r2._indicador_id){
-      doSave(r2._indicador_id);
-    } else {
-      sbClient.from('indicadores').select('id')
-        .eq('definicion', r2.definicion).maybeSingle()
-        .then(({data,error})=>{
-          if(error||!data){
-            toast('⚠️ Indicador no en Supabase — ejecute el seed SQL','er');
-            console.warn('lookup error:', error?.message, '| definicion:', r2.definicion);
-          } else { doSave(data.id); }
-        });
-    }
+        const diagSave=document.getElementById('sbDiagSave');
+        if(diagSave) diagSave.textContent='✅ '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      } else {
+        toast('⚠️ Guardado local — ver consola F12','in');
+      }
+    });
   } else {
-    toast('✅ Seguimiento guardado.','ok');
+    toast('✅ Guardado localmente','ok');
   }
 }
 
@@ -3098,6 +3184,7 @@ function calcNR(i){
   }
 }
 function saveNewInd(){
+  if(!isAdmin){ requireAuth('Agregar indicador', saveNewInd); return; }
   const ano=parseInt(document.getElementById('nAno').value);
   if(!ano||ano<2020){toast('⚠️ Ingrese un año válido (2020 o posterior).','er');return;}
   const def=document.getElementById('nDef').value.trim();
@@ -3279,10 +3366,18 @@ function askDel(gi){
     +'</div>';
   oMov('delMov');
 }
-function confDel(){if(delIdx===null)return;DB.splice(delIdx,1);cMov('delMov');delIdx=null;rAll();toast('Registro eliminado.','ok');}
+function confDel(){
+  if(!isAdmin){ requireAuth('Eliminar indicador', ()=>{ cMov('delMov'); confDel(); }); return; }
+  if(delIdx===null)return;
+  DB.splice(delIdx,1);cMov('delMov');delIdx=null;rAll();toast('Registro eliminado.','ok');
+}
 
 // ═══ MODE ═══
 function togMode(){
+  if(!editMode && !isAdmin){
+    requireAuth('Activar modo edición', ()=>{ isAdmin=true; editMode=true; togMode(); });
+    return;
+  }
   editMode=!editMode;
   const b=document.getElementById('modeBtn');
   b.textContent=editMode?'✏️ Modo edición':'🔒 Modo lectura';
@@ -3329,6 +3424,7 @@ function openEdit(gi){
 }
 
 function saveEdit(){
+  if(!isAdmin){ requireAuth('Editar indicador', saveEdit); return; }
   if(editIdx===null)return;
   const r=DB[editIdx];
   const gEl=id=>document.getElementById(id);
@@ -3393,6 +3489,72 @@ function toast(msg,t=''){
   const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+(t)+' show';
   setTimeout(()=>el.classList.remove('show'),3200);
 }
+
+
+// ═══════════════════════════════════════════════════════════════
+// ARRANQUE AUTOMÁTICO — sin pantalla de login
+// ═══════════════════════════════════════════════════════════════
+(async function startApp(){
+  // Inicializar logo
+  document.getElementById('hLogo').src = LOGO;
+
+  // Inicializar Supabase
+  if(initSupabase()){
+    const hb    = document.getElementById('sbBadge');
+    const bar   = document.getElementById('sbDiagBar');
+    const urlEl = document.getElementById('sbDiagUrl');
+    if(hb)    hb.style.display    = 'flex';
+    if(bar)   bar.style.display   = 'flex';
+    if(urlEl) urlEl.textContent   = SUPABASE_URL.replace('https://','').split('.')[0]+'...supabase.co';
+
+    // Paso 1 — cargar mapa de IDs de indicadores
+    await sbCargarMapaIds();
+
+    // Paso 2 — intentar cargar datos del año activo
+    try {
+      const rows = await sbCargarIndicadores(CY);
+      if(rows && rows.length > 0){
+        // Reemplazar DB local con datos de Supabase
+        DB = rows.map(r => sbRecordToLocal(r));
+        // Cargar planes de acción
+        const medIds = DB.map(r=>r._medicion_id).filter(Boolean);
+        if(medIds.length){
+          const {data:planes} = await SBCLIENT_REMOVED('planes_accion')
+            .select('*').in('medicion_id', medIds).order('numero');
+          if(planes){
+            const byMed = {};
+            planes.forEach(p=>{ (byMed[p.medicion_id]=byMed[p.medicion_id]||[]).push(p); });
+            DB.forEach(r=>{
+              const ps = byMed[r._medicion_id]||[];
+              ['pa1','pa2','pa3','pa4'].forEach((k,i)=>{
+                r[k+'_actividad']   = ps[i]?.actividad||'';
+                r[k+'_responsable'] = ps[i]?.responsable||'';
+                r[k+'_fecha']       = ps[i]?.fecha_seguimiento||'';
+                r[k+'_obs']         = ps[i]?.obs_cierre||'';
+              });
+            });
+          }
+        }
+        const diagData = document.getElementById('sbDiagData');
+        if(diagData) diagData.textContent = '● '+DB.length+' indicadores cargados · año '+CY;
+        console.log('✅ Supabase:', DB.length, 'indicadores cargados para año', CY);
+      } else {
+        // Sin datos en Supabase — usar locales pero con IDs listos para guardar
+        DB.forEach(r => { r._indicador_id = sbGetIndId(r.definicion); });
+        const diagData = document.getElementById('sbDiagData');
+        if(diagData) diagData.textContent = '● Datos locales + IDs Supabase listos';
+        console.log('ℹ️ Sin datos año '+CY+' en Supabase — usando locales con IDs');
+      }
+    } catch(e){
+      console.error('❌ Error inicio Supabase:', e.message);
+      DB.forEach(r => { r._indicador_id = sbGetIndId(r.definicion); });
+    }
+  }
+
+  popProcs();
+  rAll();
+  setTimeout(()=>{ autoGenAI(); }, 1500);
+})();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
