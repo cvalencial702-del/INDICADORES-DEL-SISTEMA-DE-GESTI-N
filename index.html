@@ -697,8 +697,8 @@ let YEAR=2026, MOD='', TCAT='', VMODE='cards', sbMode=false;
 // ═══════════════════════════════════════════════
 //  ⚙️  SUPABASE CONFIG — rellena tus credenciales
 // ═══════════════════════════════════════════════
-const SUPA_URL = 'https://XXXX.supabase.co';   // 👈 TU URL
-const SUPA_KEY = 'eyJhbGci...';                 // 👈 TU ANON KEY
+const SUPA_URL = 'https://ojnzncrsehmfkxorztmp.supabase.co';   // 👈 TU URL
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnpuY3JzZWhtZmt4b3J6dG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI5OTksImV4cCI6MjA5MTA2ODk5OX0.8vwzQc7Cr6T_d8w497Qnk28c_NQ-hfNd8_PyFSM0sZs';                 // 👈 TU ANON KEY
 // ═══════════════════════════════════════════════
 
 let _supa = null;
@@ -1708,7 +1708,7 @@ async function init(){
   $('dash-yr').textContent=YEAR;
 
   // Auto-detectar si las credenciales están configuradas
-  const credOk = SUPA_URL!=='https://XXXX.supabase.co' && SUPA_KEY!=='eyJhbGci...';
+  const credOk = SUPA_URL!=='https://ojnzncrsehmfkxorztmp.supabase.co' && SUPA_KEY!=='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnpuY3JzZWhtZmt4b3J6dG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI5OTksImV4cCI6MjA5MTA2ODk5OX0.8vwzQc7Cr6T_d8w497Qnk28c_NQ-hfNd8_PyFSM0sZs';
 
   if(credOk){
     sbMode=true;
@@ -1725,14 +1725,34 @@ async function init(){
         $('sb-status-lbl').textContent='OK';
         $('mode-lbl').textContent='Supabase';
         toast('✅ Datos cargados desde Supabase','ok');
-      }else{
-        // Supabase conectado pero vacío — cargar SEED como base
-        DB=SEED.map(r=>({...r,planes:[...(r.planes||[])]}));
-        $('sb-dot-icon').textContent='🟡';
-        $('sb-status-lbl').textContent='sin datos';
-        $('mode-lbl').textContent='Supabase (vacío)';
-        toast('Supabase conectado — sin datos. Cargando SEED local...','info');
-      }
+     // ✅ CÓDIGO NUEVO — carga SEED Y lo guarda automáticamente en Supabase
+} else {
+  $('sb-dot-icon').textContent = '🟡';
+  $('sb-status-lbl').textContent = 'cargando datos...';
+  toast('Primera vez — cargando indicadores base en Supabase...','info');
+
+  // Insertar todos los indicadores SEED en Supabase
+  const seedRows = SEED.map(({id,...r}) => r); // quitar id local
+  const {data: inserted, error: insertErr} = await getSupa()
+    .from('indicadores')
+    .insert(seedRows)
+    .select();
+
+  if(insertErr){
+    // Si falla el insert masivo, trabajar en local
+    DB = SEED.map(r => ({...r, planes:[...(r.planes||[])]}));
+    $('sb-dot-icon').textContent = '🔴';
+    $('sb-status-lbl').textContent = 'error';
+    toast('Error al cargar datos: ' + insertErr.message,'err');
+  } else {
+    DB = inserted;
+    NID = Math.max(...DB.map(r => r.id), 900000) + 1;
+    $('sb-dot-icon').textContent = '🟢';
+    $('sb-status-lbl').textContent = 'OK';
+    $('mode-lbl').textContent = 'Supabase';
+    toast('✅ ' + DB.length + ' indicadores cargados en Supabase','ok');
+  }
+}
     }else{
       sbMode=false;
       $('sb-pill').classList.remove('on');
