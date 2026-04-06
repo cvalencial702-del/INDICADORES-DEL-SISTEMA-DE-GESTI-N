@@ -1589,7 +1589,12 @@ async function sbGet(table, params){
     method: 'GET',
     headers: sbHeaders({ 'Accept': 'application/json' })
   });
-  if(!res.ok){ const e=await res.text(); throw new Error(table+': '+e); }
+  if(!res.ok){
+    const e=await res.text();
+    let msg=e; try{const j=JSON.parse(e);msg=j.message||j.hint||e;}catch(_){}
+    if(res.status===401||res.status===403) msg='Sin permiso RLS ('+res.status+') — ejecute fix_rls_publico.sql';
+    throw new Error(table+' ('+res.status+'): '+msg);
+  }
   return res.json();
 }
 
@@ -1600,7 +1605,12 @@ async function sbPost(table, body){
     headers: sbHeaders({ 'Prefer': 'return=representation' }),
     body: JSON.stringify(body)
   });
-  if(!res.ok){ const e=await res.text(); throw new Error(table+': '+e); }
+  if(!res.ok){
+    const e=await res.text();
+    let msg=e; try{const j=JSON.parse(e);msg=j.message||j.hint||e;}catch(_){}
+    if(res.status===401||res.status===403) msg='Sin permiso RLS ('+res.status+') — ejecute fix_rls_publico.sql';
+    throw new Error(table+' ('+res.status+'): '+msg);
+  }
   return res.json();
 }
 
@@ -1613,7 +1623,15 @@ async function sbUpsert(table, body, onConflict){
     headers: sbHeaders({ 'Prefer': prefer }),
     body: JSON.stringify(body)
   });
-  if(!res.ok){ const e=await res.text(); throw new Error(table+' upsert: '+e); }
+  if(!res.ok){
+    const e=await res.text();
+    let msg = e;
+    try{ const j=JSON.parse(e); msg=j.message||j.hint||e; }catch(_){}
+    if(res.status===401||res.status===403){
+      msg = 'Sin permiso ('+res.status+') — ejecute fix_rls_publico.sql en Supabase';
+    }
+    throw new Error(table+' ('+res.status+'): '+msg);
+  }
   return res.json();
 }
 
@@ -1623,7 +1641,14 @@ async function sbDelete(table, params){
     method: 'DELETE',
     headers: sbHeaders()
   });
-  if(!res.ok){ const e=await res.text(); throw new Error(table+' delete: '+e); }
+  if(!res.ok){
+    const e=await res.text();
+    let msg=e; try{const j=JSON.parse(e);msg=j.message||j.hint||e;}catch(_){}
+    if(res.status===401||res.status===403) msg='Sin permiso RLS ('+res.status+')';
+    // Delete failing is not critical — log but continue
+    console.warn('DELETE '+table+' ('+res.status+'):', msg);
+    return false;
+  }
   return true;
 }
 
