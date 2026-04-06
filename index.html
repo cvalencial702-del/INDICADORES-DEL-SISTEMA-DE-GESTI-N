@@ -1707,68 +1707,83 @@ async function init(){
   $('plan-yr').textContent=YEAR;
   $('dash-yr').textContent=YEAR;
 
-  // Auto-detectar si las credenciales están configuradas
-  const credOk = SUPA_URL!=='https://ojnzncrsehmfkxorztmp.supabase.co' && SUPA_KEY!=='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnpuY3JzZWhtZmt4b3J6dG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTI5OTksImV4cCI6MjA5MTA2ODk5OX0.8vwzQc7Cr6T_d8w497Qnk28c_NQ-hfNd8_PyFSM0sZs';
+  // Detectar si las credenciales son válidas (no son los placeholders de ejemplo)
+  const credOk = SUPA_URL.includes('supabase.co')
+               && SUPA_KEY.startsWith('eyJ')
+               && !SUPA_URL.includes('XXXX');
 
   if(credOk){
+    // ── Modo Supabase ──
     sbMode=true;
     $('sb-pill').classList.add('on');
     $('sb-dot-icon').textContent='🔄';
     $('sb-status-lbl').textContent='conectando...';
-    const ok=await sbPing();
+
+    const ok = await sbPing();
+
     if(ok){
-      const data=await sbLoad(YEAR);
-      if(data&&data.length>0){
-        DB=data;
-        NID=Math.max(...DB.map(r=>r.id),900000)+1;
+      // Conexión exitosa → intentar cargar datos del año actual
+      const data = await sbLoad(YEAR);
+
+      if(data && data.length > 0){
+        // Hay datos en Supabase → usarlos
+        DB = data;
+        NID = Math.max(...DB.map(r=>r.id), 900000) + 1;
         $('sb-dot-icon').textContent='🟢';
         $('sb-status-lbl').textContent='OK';
         $('mode-lbl').textContent='Supabase';
-        toast('✅ Datos cargados desde Supabase','ok');
-     // ✅ CÓDIGO NUEVO — carga SEED Y lo guarda automáticamente en Supabase
-} else {
-  $('sb-dot-icon').textContent = '🟡';
-  $('sb-status-lbl').textContent = 'cargando datos...';
-  toast('Primera vez — cargando indicadores base en Supabase...','info');
+        toast('✅ ' + DB.length + ' indicadores cargados desde Supabase','ok');
 
-  // Insertar todos los indicadores SEED en Supabase
-  const seedRows = SEED.map(({id,...r}) => r); // quitar id local
-  const {data: inserted, error: insertErr} = await getSupa()
-    .from('indicadores')
-    .insert(seedRows)
-    .select();
+      }else{
+        // Tabla vacía → insertar los 23 indicadores SEED en Supabase
+        $('sb-dot-icon').textContent='🟡';
+        $('sb-status-lbl').textContent='cargando datos iniciales...';
+        toast('Primera vez: cargando 23 indicadores en Supabase...','info');
 
-  if(insertErr){
-    // Si falla el insert masivo, trabajar en local
-    DB = SEED.map(r => ({...r, planes:[...(r.planes||[])]}));
-    $('sb-dot-icon').textContent = '🔴';
-    $('sb-status-lbl').textContent = 'error';
-    toast('Error al cargar datos: ' + insertErr.message,'err');
-  } else {
-    DB = inserted;
-    NID = Math.max(...DB.map(r => r.id), 900000) + 1;
-    $('sb-dot-icon').textContent = '🟢';
-    $('sb-status-lbl').textContent = 'OK';
-    $('mode-lbl').textContent = 'Supabase';
-    toast('✅ ' + DB.length + ' indicadores cargados en Supabase','ok');
-  }
-}
+        const seedRows = SEED.map(({id,...r})=>r); // quitar id local
+        const {data:inserted, error:insertErr} = await getSupa()
+          .from('indicadores')
+          .insert(seedRows)
+          .select();
+
+        if(insertErr){
+          // Error al insertar → trabajar en local como fallback
+          console.error('Error insertando SEED:', insertErr);
+          DB = SEED.map(r=>({...r, planes:[...(r.planes||[])]}));
+          $('sb-dot-icon').textContent='🔴';
+          $('sb-status-lbl').textContent='error al insertar';
+          $('mode-lbl').textContent='Local (error)';
+          toast('Error Supabase: '+insertErr.message,'err');
+        }else{
+          // SEED insertado correctamente
+          DB = inserted;
+          NID = Math.max(...DB.map(r=>r.id), 900000) + 1;
+          $('sb-dot-icon').textContent='🟢';
+          $('sb-status-lbl').textContent='OK';
+          $('mode-lbl').textContent='Supabase';
+          toast('✅ '+DB.length+' indicadores guardados en Supabase','ok');
+        }
+      }
+
     }else{
+      // Sin conexión a Supabase → fallback local
       sbMode=false;
       $('sb-pill').classList.remove('on');
       $('sb-dot-icon').textContent='🔴';
       $('sb-status-lbl').textContent='sin conexión';
       $('mode-lbl').textContent='Local';
       loadLocal();
-      toast('⚠️ Supabase sin conexión. Cargando datos locales...','err');
+      toast('⚠️ Sin conexión a Supabase — usando datos locales','err');
     }
+
   }else{
-    // Credenciales no configuradas → modo local
+    // Credenciales no configuradas → modo local puro
     loadLocal();
     $('sb-dot-icon').textContent='☁️';
     $('sb-status-lbl').textContent='';
     $('mode-lbl').textContent='Local';
   }
+
   renderPlan();
 }
 
