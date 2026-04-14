@@ -509,6 +509,10 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
             <div class="fg"><label class="flbl">Objetivo HSEQ</label><input class="fi" id="nf-obj"></div>
             <div class="fg"><label class="flbl">Evaluador</label><input class="fi" id="nf-eval"></div>
           </div>
+          <div class="fg">
+            <label class="flbl">A quién comunicar</label>
+            <input class="fi" id="nf-comunicar" placeholder="Ej: Alta dirección, COPASST, Todo el personal...">
+          </div>
         </div>
       </div>
       <div class="fs"><div class="fs-head">📐 Cálculo Inicial</div>
@@ -615,6 +619,7 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
             <div class="fg2">
               <div class="fg"><label class="flbl">Evaluador</label><input class="fi" id="ef-eval"></div>
               <div class="fg"><label class="flbl">Cargo</label><input class="fi" id="ef-cargo"></div>
+              <div class="fg"><label class="flbl">A quién comunicar</label><input class="fi" id="ef-comunicar" placeholder="Ej: Alta dirección, COPASST, Todo el personal..."></div>
             </div>
             <div class="fg"><label class="flbl">Análisis y Observaciones</label><textarea class="fta" id="ef-anal"></textarea></div>
             <div class="fg"><label class="flbl">Observaciones / Lecciones Aprendidas</label><textarea class="fta" id="ef-obs"></textarea></div>
@@ -688,9 +693,83 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
   </div>
 </div>
 
+<!-- ═══ MODAL: CLAVE DE ACCESO ═══ -->
+<div class="bd" id="md-auth" style="display:none">
+  <div class="modal sm" style="max-width:360px">
+    <div class="mhead" style="background:#1a2744">
+      <div>
+        <div class="mh-title">🔐 Acceso Requerido</div>
+        <div class="mh-sub" id="auth-subtitle">Ingrese la clave para continuar</div>
+      </div>
+      <button class="mclose" onclick="authCancel()">✕</button>
+    </div>
+    <div class="mbody" style="padding:20px">
+      <div style="text-align:center;margin-bottom:16px;font-size:13px;color:var(--t2)" id="auth-action-label"></div>
+      <div class="fg">
+        <label class="flbl">Clave de acceso</label>
+        <input class="fi" id="auth-input" type="password" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')authConfirm()"
+               style="font-size:18px;letter-spacing:4px;text-align:center">
+      </div>
+      <div id="auth-error" style="display:none;margin-top:8px;padding:7px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;font-size:12px;color:#b91c1c;text-align:center">
+        ❌ Clave incorrecta. Intente nuevamente.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-s" onclick="authCancel()">Cancelar</button>
+      <button class="btn btn-p" onclick="authConfirm()">🔓 Ingresar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ═══ AUTH SYSTEM ═══
+const AUTH_KEY = '2025';
+const AUTH_SESSION_KEY = 'hseq_auth_ts';
+const AUTH_DURATION = 30 * 60 * 1000; // 30 minutos
+
+let _authCallback = null;
+let _authLabel = '';
+
+function isAuthenticated(){
+  const ts = parseInt(localStorage.getItem(AUTH_SESSION_KEY)||'0');
+  return Date.now() - ts < AUTH_DURATION;
+}
+
+function requireAuth(label, callback){
+  if(isAuthenticated()){callback();return;}
+  _authCallback = callback;
+  _authLabel = label;
+  $("auth-action-label").textContent = label;
+  $("auth-input").value = '';
+  $("auth-error").style.display = 'none';
+  $("md-auth").style.display = 'flex';
+  setTimeout(()=>{ const el=$("auth-input"); if(el)el.focus(); },120);
+}
+
+function authConfirm(){
+  const val = $("auth-input").value;
+  if(val === AUTH_KEY){
+    localStorage.setItem(AUTH_SESSION_KEY, Date.now().toString());
+    $("md-auth").style.display = 'none';
+    $("auth-error").style.display = 'none';
+    if(_authCallback){ const cb=_authCallback; _authCallback=null; cb(); }
+  } else {
+    $("auth-error").style.display = 'block';
+    $("auth-input").value = '';
+    $("auth-input").focus();
+  }
+}
+
+function authCancel(){
+  $("md-auth").style.display = 'none';
+  _authCallback = null;
+}
+
+// ═══ END AUTH ═══
+
 // ═══ STATE ═══
 let YEAR=2026, MOD='', TCAT='', VMODE='cards', sbMode=false;
 
@@ -1125,6 +1204,12 @@ function renderHist(){
 // ─── MODAL: CALC ───
 function openCalc(id){
   const r=DB.find(x=>x.id===id);if(!r)return;
+  // Read-only for old years — no auth needed
+  if(r.anio<2026){_openCalcInner(id);return;}
+  requireAuth("📐 Registrar seguimiento del indicador", ()=>_openCalcInner(id));
+}
+function _openCalcInner(id){
+  const r=DB.find(x=>x.id===id);if(!r)return;
   calcId=id;
   const isOld=r.anio<2026;
   $('mc-title').textContent=r.def;
@@ -1360,12 +1445,16 @@ async function saveCalc(){
 
 // ─── MODAL: EDIT ───
 function openEdit(id){
+  requireAuth("✏️ Editar indicador", ()=>_openEdit(id));
+}
+function _openEdit(id){
   editId=id;const r=DB.find(x=>x.id===id);if(!r)return;
   $('me-sub').innerHTML=`<span>${r.def}</span>`;
   $('ef-y').value=r.anio;$('ef-mod').value=r.mod;$('ef-tipo').value=r.tipo;$('ef-freq').value=r.freq;
   $('ef-proc').value=r.proc||'';$('ef-meta').value=r.meta||'';$('ef-def').value=r.def;
   $('ef-interp').value=r.interp||'';$('ef-met').value=r.met||'';$('ef-fuente').value=r.fuente||'';
   $('ef-obj').value=r.obj||'';$('ef-eval').value=r.eval||'';$('ef-cargo').value=r.cargo||'';
+  $('ef-comunicar').value=r.comunicar||'';
   $('ef-anal').value=r.anal||'';$('ef-obs').value=r.obs||'';
   $('md-edit').style.display='flex';
 }
@@ -1376,6 +1465,7 @@ async function saveEdit(){
   r.proc=$('ef-proc').value;r.meta=$('ef-meta').value;r.def=$('ef-def').value;
   r.interp=$('ef-interp').value;r.met=$('ef-met').value;r.fuente=$('ef-fuente').value;
   r.obj=$('ef-obj').value;r.eval=$('ef-eval').value;r.cargo=$('ef-cargo').value;
+  r.comunicar=$('ef-comunicar').value;
   r.anal=$('ef-anal').value;r.obs=$('ef-obs').value;
   if(sbMode){
     const saved=await sbUpsert(r);
@@ -1385,6 +1475,9 @@ async function saveEdit(){
 }
 
 function promptDelete(){
+  requireAuth("🗑 Eliminar indicador", ()=>_promptDelete());
+}
+function _promptDelete(){
   const r=DB.find(x=>x.id===editId);if(!r)return;
   $('del-txt').textContent=`¿Eliminar "${r.def}"?`;
   $('md-del').style.display='flex';
@@ -1403,9 +1496,12 @@ async function confirmDel(){
 
 // ─── MODAL: NEW ───
 function openNewModal(){
+  requireAuth("➕ Agregar nuevo indicador", ()=>_openNewModal());
+}
+function _openNewModal(){
   $('nf-y').value='';$('nf-mod').value='';$('nf-tipo').value='';$('nf-freq').value='';
   $('nf-proc').value='';$('nf-meta').value='';$('nf-def').value='';
-  $('nf-interp').value='';$('nf-met').value='';$('nf-fuente').value='';$('nf-obj').value='';$('nf-eval').value='';
+  $('nf-interp').value='';$('nf-met').value='';$('nf-fuente').value='';$('nf-obj').value='';$('nf-eval').value='';$('nf-comunicar').value='';
   ['ne-y','ne-mod','ne-def'].forEach(id=>{$(id).textContent='';});
   $('new-pm-msg').style.display='block';$('new-pm').style.display='none';$('new-alert').innerHTML='';
   $('md-new').style.display='flex';
@@ -1455,6 +1551,7 @@ async function saveNew(){
   const rec={id:NID++,anio:parseInt(y),mod,tipo:$('nf-tipo').value,freq,proc:$('nf-proc').value,
     meta:$('nf-meta').value,def,interp:$('nf-interp').value,met:$('nf-met').value,
     fuente:$('nf-fuente').value,obj:$('nf-obj').value,eval:$('nf-eval').value,cargo:'',
+    comunicar:$('nf-comunicar').value,
     r1:'',r2:'',r3:'',r4:'',vA1:'',vB1:'',vA2:'',vB2:'',vA3:'',vB3:'',vA4:'',vB4:'',ra:'',anal:'',obs:'',planes:[]};
   for(let i=1;i<=n;i++){
     const va=document.querySelector(`#new-pm .nva[data-i="${i}"]`);
@@ -1595,6 +1692,7 @@ function genPDF(id){
             ['Fuente', r.fuente||'—'],
             ['Resultado alcanzado', dispVal],
             ['Objetivo HSEQ', r.obj||'—'],
+            ['A quién comunicar', r.comunicar||'—'],
           ].map(([k,v])=>`
           <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f1f5f9;gap:8px">
             <span style="font-size:11.5px;color:#64748b;flex-shrink:0;min-width:110px">${k}</span>
