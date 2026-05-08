@@ -586,6 +586,7 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
           <div class="ph-sub">Gestión, seguimiento y cierre de no conformidades del sistema HSEQ</div>
         </div>
         <div class="ph-actions">
+          <button class="btn btn-s" id="btn-nc-migrate" onclick="ncMigrateToSupa()" title="Subir NCs locales a Supabase">☁️ Sincronizar con Supabase</button>
           <button class="btn btn-p" onclick="openNcNew()">+ Nueva NC</button>
         </div>
       </div>
@@ -1670,7 +1671,10 @@ function showPage(p,el){
   if(p==='dashboard')renderDash();
   if(p==='informes')renderInf();
   if(p==='historial')renderHist();
-  if(p==='nc'){loadNC();renderNC();}
+  if(p==='nc'){
+    loadNC();renderNC();
+    loadNCFromSupa().then(ok=>{if(ok)renderNC();});
+  }
   if(p==='actas'){
     loadACTA();
     renderActas();
@@ -2584,11 +2588,82 @@ function loadAUD(){
   if(s){try{AUD_DB=JSON.parse(s);AUD_NID=Math.max(...AUD_DB.map(r=>r.id),0)+1;}catch(e){AUD_DB=[];AUD_NID=1;}}
 }
 
+// ── Supabase helpers NC ──
+async function sbNcLoad(){
+  const s=getSupa();if(!s)return null;
+  const {data,error}=await s.from('no_conformidades').select('*').order('id');
+  if(error){console.error('sbNcLoad:',error);return null;}
+  return data;
+}
+async function sbNcUpsert(nc){
+  const s=getSupa();if(!s)return null;
+  const row={
+    id:nc.id,tipo:nc.tipo,fecha:nc.fecha||null,
+    aud_num:nc.audNum||'',rep_num:nc.repNum||'',
+    aud_tipo:nc.audTipo||'',norma:nc.norma||'',
+    proceso:nc.proceso||'',origen:nc.origen||'',
+    req:nc.req||'',descripcion:nc.desc||'',
+    metodologia:nc.metodologia||'',participantes:nc.participantes||'',
+    whys:nc.whys||[],actividades:nc.actividades||[],
+    seguimientos:nc.seguimientos||[],
+    cierre:nc.cierre||'NO',
+    fecha_cierre:nc.fechaCierre||null,
+    avance:parseInt(nc.avance)||0,
+    estado:nc.estado||'ABIERTA',
+    historial:nc.historial||[],
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await s.from('no_conformidades').upsert([row],{onConflict:'id'}).select().single();
+  if(error){console.error('sbNcUpsert:',error);toast('Error Supabase NC: '+error.message,'err');return null;}
+  return data;
+}
+async function sbNcDelete(id){
+  const s=getSupa();if(!s)return false;
+  const {error}=await s.from('no_conformidades').delete().eq('id',id);
+  if(error){console.error('sbNcDelete:',error);return false;}
+  return true;
+}
+async function loadNCFromSupa(){
+  const data=await sbNcLoad();
+  if(!data)return false;
+  NC_DB=data.map(r=>({
+    id:r.id,tipo:r.tipo,fecha:r.fecha,
+    audNum:r.aud_num,repNum:r.rep_num,
+    audTipo:r.aud_tipo,norma:r.norma,
+    proceso:r.proceso,origen:r.origen,
+    req:r.req,desc:r.descripcion,
+    metodologia:r.metodologia,participantes:r.participantes,
+    whys:r.whys||[],actividades:r.actividades||[],
+    seguimientos:r.seguimientos||[],
+    cierre:r.cierre,fechaCierre:r.fecha_cierre,
+    avance:r.avance,estado:r.estado,
+    historial:r.historial||[]
+  }));
+  NC_NID=Math.max(...NC_DB.map(r=>r.id),0)+1;
+  saveNC();
+  return true;
+}
+
 function ncEstado(nc){
   if(nc.cierre==='SI'||nc.avance>=100)return'CERRADA';
   if(nc.actividades&&nc.actividades.length&&nc.avance>0)return'EN_PROGRESO';
   if(nc.limite&&new Date(nc.limite)<new Date()&&(nc.avance||0)<100)return'VENCIDA';
   return nc.estado||'ABIERTA';
+}
+
+async function ncMigrateToSupa(){
+  loadNC();
+  if(!NC_DB.length){toast('No hay NCs locales para sincronizar','info');return;}
+  const btn=$('btn-nc-migrate');
+  if(btn){btn.textContent='☁️ Sincronizando...';btn.disabled=true;}
+  let ok=0,fail=0;
+  for(const nc of NC_DB){
+    const r=await sbNcUpsert(nc);
+    if(r)ok++;else fail++;
+  }
+  if(btn){btn.textContent='☁️ Sincronizar con Supabase';btn.disabled=false;}
+  toast(`☁️ ${ok} NCs subidas a Supabase${fail?` · ${fail} con error`:''}`,fail?'err':'ok');
+  renderNC();
 }
 
 function ncTipoBadge(tipo){
@@ -2727,6 +2802,9 @@ function ncConfirmDelete(){
     CM('md-nc-del');
     renderNC();
     toast('No conformidad eliminada','ok');
+    sbNcDelete(_ncDeleteTargetId).then(ok=>{
+      if(ok) toast('☁️ Eliminada de Supabase','ok');
+    });
   }else{
     const err=$('nc-del-err');
     if(err)err.textContent='Clave incorrecta. Intente nuevamente.';
@@ -2882,7 +2960,11 @@ function saveNc(){
     else NC_DB.push(nc);
   }else NC_DB.push(nc);
   saveNC();CM('md-nc-new');renderNC();
-  toast(currentNcId?'NC actualizada correctamente':'NC registrada correctamente','ok');
+  toast(currentNcId?'NC actualizada':'NC registrada','ok');
+  // Sync to Supabase
+  sbNcUpsert(nc).then(r=>{
+    if(r) toast('☁️ NC sincronizada con Supabase','ok');
+  });
 }
 
 // ── Detalle NC (solo lectura, sin clave) ──
