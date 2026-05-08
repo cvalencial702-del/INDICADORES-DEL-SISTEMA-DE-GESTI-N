@@ -1457,22 +1457,36 @@ async function sbLoad(year){
 }
 async function sbUpsert(r){
   const s=getSupa();if(!s)return null;
-  const {id,...fields}=r;
-  if(!id||isNaN(id)||id>900000){
-    const {data,error}=await s.from('indicadores').insert([fields]).select().single();
-    if(error){toast('Error Supabase: '+error.message,'err');return null;}
-    return data;
-  }else{
-    const {data,error}=await s.from('indicadores').update(fields).eq('id',id).select().single();
-    if(error){toast('Error Supabase: '+error.message,'err');return null;}
-    return data;
-  }
+  const row={
+    id:r.id,anio:r.anio,mod:r.mod,tipo:r.tipo,freq:r.freq,proc:r.proc,
+    meta:r.meta,def:r.def,interp:r.interp,met:r.met,fuente:r.fuente,
+    obj:r.obj,eval:r.eval,cargo:r.cargo,comunicar:r.comunicar||'',
+    r1:r.r1||'',r2:r.r2||'',r3:r.r3||'',r4:r.r4||'',
+    vA1:r.vA1||'',vB1:r.vB1||'',vA2:r.vA2||'',vB2:r.vB2||'',
+    vA3:r.vA3||'',vB3:r.vB3||'',vA4:r.vA4||'',vB4:r.vB4||'',
+    ra:r.ra||'',anal:r.anal||'',obs:r.obs||'',
+    planes:r.planes||[],
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await s.from('indicadores').upsert([row],{onConflict:'id'}).select().single();
+  if(error){console.error('sbUpsert:',error);toast('Error Supabase: '+error.message,'err');return null;}
+  return data;
 }
 async function sbInsert(fields){
   const s=getSupa();if(!s)return null;
-  const {id,...f}=fields;
-  const {data,error}=await s.from('indicadores').insert([f]).select().single();
-  if(error){toast('Error Supabase: '+error.message,'err');return null;}
+  const row={
+    anio:fields.anio,mod:fields.mod,tipo:fields.tipo,freq:fields.freq,proc:fields.proc,
+    meta:fields.meta,def:fields.def,interp:fields.interp,met:fields.met,fuente:fields.fuente,
+    obj:fields.obj,eval:fields.eval,cargo:fields.cargo,comunicar:fields.comunicar||'',
+    r1:fields.r1||'',r2:fields.r2||'',r3:fields.r3||'',r4:fields.r4||'',
+    vA1:fields.vA1||'',vB1:fields.vB1||'',vA2:fields.vA2||'',vB2:fields.vB2||'',
+    vA3:fields.vA3||'',vB3:fields.vB3||'',vA4:fields.vA4||'',vB4:fields.vB4||'',
+    ra:fields.ra||'',anal:fields.anal||'',obs:fields.obs||'',
+    planes:fields.planes||[],
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await s.from('indicadores').insert([row]).select().single();
+  if(error){console.error('sbInsert:',error);toast('Error Supabase: '+error.message,'err');return null;}
   return data;
 }
 async function sbDelete(id){
