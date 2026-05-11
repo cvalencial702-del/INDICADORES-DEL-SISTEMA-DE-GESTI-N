@@ -411,6 +411,64 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
 .nc-prog-val{font-size:13px;font-weight:700;color:#0d5c36;min-width:38px;text-align:right}
 .btn-pdf{background:var(--g1);color:#fff;border:none}
 .btn-pdf:hover{background:var(--g2)}
+
+/* ─── GESTIÓN DEL CAMBIO ─── */
+.gc-kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px}
+.gc-kcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:13px 14px;box-shadow:var(--sh);border-left:4px solid var(--border)}
+.gc-kcard.total{border-left-color:var(--g2)}
+.gc-kcard.gerencial{border-left-color:var(--blue)}
+.gc-kcard.tecnico{border-left-color:var(--purple)}
+.gc-kcard.hseq{border-left-color:var(--teal)}
+.gc-kcard.otros{border-left-color:var(--amber)}
+.gc-kcard-lbl{font-size:9.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.gc-kcard-val{font-size:26px;font-weight:700;color:var(--text)}
+.gc-kcard-sub{font-size:11px;color:var(--t2);margin-top:3px}
+.gc-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:15px;box-shadow:var(--sh)}
+.gc-chart-title{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.gc-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.gc-bar-lbl{font-size:11px;color:var(--t2);width:90px;flex-shrink:0;font-weight:600}
+.gc-bar-track{flex:1;height:14px;background:var(--border);border-radius:3px;overflow:hidden}
+.gc-bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:5px;transition:width .4s ease}
+.gc-bar-fill span{font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
+.gc-bar-val{font-size:11px;font-weight:700;color:var(--text);min-width:24px;text-align:right}
+.gc-form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
+.gc-form-title{font-size:13px;font-weight:700;color:var(--g1);margin-bottom:14px;display:flex;align-items:center;gap:7px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.gc-tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh)}
+.gc-tbl{width:100%;border-collapse:collapse}
+.gc-tbl thead th{background:var(--g1);color:#fff;padding:9px 10px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.gc-tbl tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.gc-tbl tbody tr:hover{background:#f0faf5}
+.gc-tbl tbody tr:last-child{border-bottom:none}
+.gc-tbl td{padding:8px 10px;font-size:12px;vertical-align:middle}
+.gc-proc-pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.gc-proc-Gerencial{background:#dbeafe;color:#1e3a8a}
+.gc-proc-Técnico{background:var(--pl);color:#4c1d95}
+.gc-proc-HSEQ{background:var(--tl);color:#0c4a6e}
+.gc-proc-Otros{background:var(--al);color:#92490a}
+.gc-num-badge{background:var(--gl);color:var(--g1);border:1px solid var(--gm);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+.gc-otros-field{margin-top:0;display:none}
+.gc-otros-field.show{display:block}
+.gc-sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh)}
+.gc-sec-hd{background:#0d3d24;color:#fff;padding:8px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.gc-sec-body{padding:13px 14px}
+.gc-riesgo-row td{padding:5px 6px;vertical-align:top;border-bottom:1px solid var(--border)}
+.gc-riesgo-row:last-child td{border-bottom:none}
+.gc-riesgo-ta{width:100%;border:1.5px solid var(--b2);border-radius:5px;padding:5px 7px;font-size:11.5px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;resize:vertical;min-height:52px}
+.gc-riesgo-ta:focus{border-color:var(--g2);box-shadow:0 0 0 2px rgba(19,122,71,.1)}
+.gc-riesgo-num{width:100%;border:1.5px solid var(--b2);border-radius:5px;padding:5px 6px;font-size:12px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;text-align:center}
+.gc-riesgo-num:focus{border-color:var(--g2)}
+.gc-nivel-pill{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;min-width:72px;line-height:1.3}
+.gc-nivel-Bajo{background:#2ecc71;color:#fff}
+.gc-nivel-Menor{background:#27ae60;color:#fff}
+.gc-nivel-Moderado{background:#f1c40f;color:#333}
+.gc-nivel-Alto{background:#e67e22;color:#fff}
+.gc-nivel-Extremo{background:#c0392b;color:#fff}
+.gc-plan-row td{padding:5px 6px;vertical-align:top;border-bottom:1px solid var(--border)}
+.gc-plan-row:last-child td{border-bottom:none}
+.gc-plan-ta{width:100%;border:1.5px solid var(--b2);border-radius:5px;padding:5px 7px;font-size:11.5px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;resize:none}
+.gc-plan-ta:focus{border-color:var(--g2);box-shadow:0 0 0 2px rgba(19,122,71,.1)}
+.gc-plan-fi{width:100%;border:1.5px solid var(--b2);border-radius:5px;padding:5px 6px;font-size:11.5px;font-family:inherit;color:var(--text);background:var(--surface);outline:none}
+.gc-plan-fi:focus{border-color:var(--g2)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -459,6 +517,7 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
       <div class="sb-lbl">Auditoría</div>
       <div class="sb-item" id="si-nc" onclick="showPage('nc',this)">⚠️ No Conformidades <span class="sb-cnt" id="sc-nc">0</span></div>
       <div class="sb-item" id="si-actas" onclick="showPage('actas',this)">📋 Actas de Reunión <span class="sb-cnt" id="sc-actas"></span></div>
+      <div class="sb-item" id="si-cambio" onclick="showPage('cambio',this)">🔄 Gestión del Cambio <span class="sb-cnt" id="sc-cambio">0</span></div>
     </div>
     <div class="sb-foot">
       <div class="sb-mode"><span class="sb-dot"></span> <span id="mode-lbl">Local</span></div>
@@ -687,8 +746,361 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
       </div>
     </div>
 
+    <!-- ══ GESTIÓN DEL CAMBIO ══ -->
+    <div class="page" id="page-cambio">
+      <div class="ph">
+        <div>
+          <div class="ph-title">🔄 Gestión del Cambio</div>
+          <div class="ph-sub">Matriz de Control del Cambio — Registro, seguimiento y aprobación</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn btn-p" onclick="openGcNew()">+ Nuevo Cambio</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="gc-kstrip" id="gc-kstrip">
+        <div class="gc-kcard total"><div class="gc-kcard-lbl">Total Cambios</div><div class="gc-kcard-val" id="gc-kv-total">0</div><div class="gc-kcard-sub">Registrados</div></div>
+        <div class="gc-kcard gerencial"><div class="gc-kcard-lbl">Proceso Gerencial</div><div class="gc-kcard-val" id="gc-kv-ger">0</div><div class="gc-kcard-sub">Cambios</div></div>
+        <div class="gc-kcard tecnico"><div class="gc-kcard-lbl">Proceso Técnico</div><div class="gc-kcard-val" id="gc-kv-tec">0</div><div class="gc-kcard-sub">Cambios</div></div>
+        <div class="gc-kcard hseq"><div class="gc-kcard-lbl">Proceso HSEQ</div><div class="gc-kcard-val" id="gc-kv-hseq">0</div><div class="gc-kcard-sub">Cambios</div></div>
+      </div>
+
+      <!-- KPI Chart por proceso -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="gc-chart-card">
+          <div class="gc-chart-title">📊 Cambios por Proceso</div>
+          <div id="gc-chart-proc"></div>
+        </div>
+        <div class="gc-chart-card">
+          <div class="gc-chart-title">📋 Estado de Cambios</div>
+          <div id="gc-chart-estado"></div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="nc-filters" style="margin-bottom:14px">
+        <select id="gcf-proc" onchange="renderGC()">
+          <option value="">Proceso</option>
+          <option>Gerencial</option><option>Técnico</option><option>HSEQ</option><option>Otros</option>
+        </select>
+        <select id="gcf-estado" onchange="renderGC()">
+          <option value="">Estado</option>
+          <option>ABIERTO</option><option>EN REVISIÓN</option><option>APROBADO</option><option>RECHAZADO</option><option>IMPLEMENTADO</option>
+        </select>
+        <input type="text" id="gcf-q" placeholder="Buscar..." oninput="renderGC()">
+        <button class="btn btn-s btn-sm" onclick="clearGcF()">✕ Limpiar</button>
+        <span class="fc" id="gc-cnt"></span>
+      </div>
+
+      <!-- Table -->
+      <div class="gc-tbl-wrap">
+        <table class="gc-tbl">
+          <thead>
+            <tr>
+              <th style="width:80px">N° Cambio</th>
+              <th style="width:95px">Fecha</th>
+              <th>Descripción del Cambio</th>
+              <th style="width:100px">Proceso</th>
+              <th style="width:120px">Responsable</th>
+              <th style="width:95px">Fecha Límite</th>
+              <th style="width:100px">Estado</th>
+              <th style="width:100px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="gc-tbody"></tbody>
+        </table>
+        <div class="es" id="gc-empty" style="display:none"><div class="es-icon">🔄</div><p>No hay registros de cambios. Haz clic en <strong>+ Nuevo Cambio</strong> para comenzar.</p></div>
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /shell -->
+
+<!-- ═══ MODAL: NUEVO / EDITAR CAMBIO ═══ -->
+<div class="bd" id="md-gc-new" style="display:none" onclick="closeBD(event,'md-gc-new')">
+  <div class="modal" style="max-width:900px;width:100%">
+    <div class="mhead" style="background:#0d3d24">
+      <div>
+        <div class="mh-title" id="gc-modal-title">🔄 Nuevo Registro de Cambio</div>
+        <div class="mh-sub"><span id="gc-modal-num"></span><span>FORMATO P-PG-03/F-01</span></div>
+      </div>
+      <button class="mclose" onclick="CM('md-gc-new')">✕</button>
+    </div>
+    <div class="mbody" style="padding:16px 20px">
+
+      <!-- SECCIÓN 1: INFORMACIÓN GENERAL -->
+      <div class="gc-sec">
+        <div class="gc-sec-hd">📋 Información General</div>
+        <div class="gc-sec-body">
+          <div class="fg3" style="margin-bottom:11px">
+            <div class="fg"><label class="flbl">Fecha <span class="req">*</span></label><input type="date" class="fi" id="gc-f-fecha"></div>
+            <div class="fg">
+              <label class="flbl">Proceso <span class="req">*</span></label>
+              <select class="fsel" id="gc-f-proc" onchange="gcToggleOtros()">
+                <option value="">Seleccionar...</option>
+                <option>Gerencial</option><option>Técnico</option><option>HSEQ</option><option>Otros</option>
+              </select>
+            </div>
+            <div class="fg"><label class="flbl">N° Cambio (Auto)</label><input type="text" class="fi" id="gc-f-num" readonly></div>
+          </div>
+          <div class="gc-otros-field" id="gc-otros-wrap" style="margin-bottom:11px">
+            <div class="fg2">
+              <div class="fg">
+                <label class="flbl">Especificar proceso <span class="req">*</span></label>
+                <select class="fsel" id="gc-f-proc-otros">
+                  <option value="">Seleccionar proceso...</option>
+                  <option>Administrativo</option><option>Financiero</option><option>Comercial</option>
+                  <option>Calidad</option><option>Operativo</option><option>Logística</option>
+                  <option>Recursos Humanos</option><option>Tecnología</option><option>Legal / Cumplimiento</option>
+                  <option>Otro (especificar)</option>
+                </select>
+              </div>
+              <div class="fg"><label class="flbl">Nombre del proceso (si aplica)</label><input type="text" class="fi" id="gc-f-proc-custom" placeholder="Especificar..."></div>
+            </div>
+          </div>
+          <div class="fg2" style="margin-bottom:11px">
+            <div class="fg"><label class="flbl">Cambio solicitado por <span class="req">*</span></label><input type="text" class="fi" id="gc-f-resp" placeholder="Nombre completo"></div>
+            <div class="fg"><label class="flbl">Cargo</label><input type="text" class="fi" id="gc-f-cargo" placeholder="Cargo del solicitante"></div>
+          </div>
+          <div class="fg" style="margin-bottom:11px">
+            <label class="flbl">Identificación de la(s) necesidad(es) del cambio / Descripción de la situación <span class="req">*</span></label>
+            <textarea class="fta" id="gc-f-situacion" placeholder="Describa la situación que origina el cambio..." rows="2"></textarea>
+          </div>
+          <div class="fg">
+            <label class="flbl">Propuesta para la gestión del cambio</label>
+            <textarea class="fta" id="gc-f-propuesta" placeholder="Describa la propuesta de gestión del cambio..." rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: EVALUACIÓN DE RIESGOS -->
+      <div class="gc-sec" style="margin-top:12px">
+        <div class="gc-sec-hd">⚠️ Evaluación de Riesgos del Cambio <span style="font-size:10px;font-weight:400;opacity:.7">(P-PG-05)</span></div>
+        <div class="gc-sec-body" style="padding:0">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="background:#1a3b66">
+                <th style="color:#fff;padding:7px 10px;text-align:left;width:21%">Descripción del Riesgo</th>
+                <th style="color:#fff;padding:7px 10px;text-align:left;width:17%">Efecto Posible</th>
+                <th style="color:#fff;padding:7px 10px;text-align:left;width:18%">Control(es) Existente(s)</th>
+                <th style="color:#fff;padding:7px 6px;text-align:center;width:7%" title="Probabilidad (1–5)">P<br><span style="font-size:9px;font-weight:400;opacity:.7">Prob.</span></th>
+                <th style="color:#fff;padding:7px 6px;text-align:center;width:7%" title="Impacto (1–5)">I<br><span style="font-size:9px;font-weight:400;opacity:.7">Impac.</span></th>
+                <th style="color:#fff;padding:7px 6px;text-align:center;width:6%" title="Valor = P × I">V<br><span style="font-size:9px;font-weight:400;opacity:.7">P×I</span></th>
+                <th style="color:#fff;padding:7px 6px;text-align:center;width:9%">Nivel</th>
+                <th style="color:#fff;padding:7px 10px;text-align:left;width:15%">Tratamiento del Riesgo</th>
+              </tr>
+            </thead>
+            <tbody id="gc-riesgos-body"></tbody>
+          </table>
+          <div style="padding:8px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-s btn-sm" onclick="gcAddRiesgo()" style="border:1.5px dashed #b2e8ce;background:#f0fdf4;color:#137a47">+ Agregar Riesgo</button>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--t2)">
+              <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:12px;height:12px;border-radius:3px;background:#c0392b;display:inline-block"></span>Extremo (20–25)</span>
+              <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:12px;height:12px;border-radius:3px;background:#e67e22;display:inline-block"></span>Alto (12–19)</span>
+              <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:12px;height:12px;border-radius:3px;background:#f1c40f;display:inline-block"></span>Moderado (6–11)</span>
+              <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:12px;height:12px;border-radius:3px;background:#27ae60;display:inline-block"></span>Menor (3–5)</span>
+              <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:12px;height:12px;border-radius:3px;background:#2ecc71;display:inline-block"></span>Bajo (1–2)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: APROBACIÓN -->
+      <div class="gc-sec" style="margin-top:12px">
+        <div class="gc-sec-hd">✅ Aprobación del Cambio</div>
+        <div class="gc-sec-body">
+          <div class="fg4">
+            <div class="fg">
+              <label class="flbl">¿Se aprueba el cambio?</label>
+              <select class="fsel" id="gc-f-aprobado">
+                <option value="">—</option><option>SI</option><option>NO</option>
+              </select>
+            </div>
+            <div class="fg"><label class="flbl">Nombre del Aprobador</label><input type="text" class="fi" id="gc-f-aprobador" placeholder="Nombre"></div>
+            <div class="fg"><label class="flbl">Cargo del Aprobador</label><input type="text" class="fi" id="gc-f-cargo-aprobador" placeholder="Cargo"></div>
+            <div class="fg"><label class="flbl">Cargos a comunicar</label><input type="text" class="fi" id="gc-f-comunicar" placeholder="Cargos que deben ser informados"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: PLAN DE ACCIÓN -->
+      <div class="gc-sec" style="margin-top:12px">
+        <div class="gc-sec-hd" style="display:flex;align-items:center;justify-content:space-between">
+          <span>📅 Planeación y Comunicación del Cambio — Plan de Acción</span>
+          <button onclick="gcAddPlan()" style="background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:5px;padding:2px 10px;cursor:pointer;font-size:11px;font-family:inherit;font-weight:600">+ Actividad</button>
+        </div>
+        <div class="gc-sec-body" style="padding:0">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="background:#1a3b66">
+                <th style="color:#fff;padding:7px 10px;text-align:left">Descripción de Actividad(es)</th>
+                <th style="color:#fff;padding:7px 10px;text-align:left;width:160px">Responsable</th>
+                <th style="color:#fff;padding:7px 10px;text-align:center;width:105px">Fecha</th>
+                <th style="color:#fff;padding:7px 10px;text-align:center;width:105px">Fecha Seguim.</th>
+                <th style="color:#fff;padding:7px 10px;text-align:left">Observación(es)</th>
+                <th style="color:#fff;padding:7px 8px;text-align:center;width:36px"></th>
+              </tr>
+            </thead>
+            <tbody id="gc-plan-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 5: CIERRE -->
+      <div class="gc-sec" style="margin-top:12px">
+        <div class="gc-sec-hd">🔒 Estado y Cierre del Cambio</div>
+        <div class="gc-sec-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px;margin-bottom:11px">
+            <div class="fg">
+              <label class="flbl">¿Se aprobó el plan de acción?</label>
+              <select class="fsel" id="gc-f-aprobacion-plan">
+                <option value="">—</option><option>SI</option><option>NO</option>
+              </select>
+            </div>
+            <div class="fg"><label class="flbl">Estado del Cambio</label>
+              <select class="fsel" id="gc-f-estado">
+                <option>ABIERTO</option><option>EN REVISIÓN</option><option>APROBADO</option>
+                <option>RECHAZADO</option><option value="CERRADO">CERRADO</option><option>IMPLEMENTADO</option>
+              </select>
+            </div>
+            <div class="fg"><label class="flbl">Fecha de Cierre</label><input type="date" class="fi" id="gc-f-fecha-cierre"></div>
+            <div class="fg"><label class="flbl">Impacto Potencial</label>
+              <select class="fsel" id="gc-f-impacto">
+                <option value="">—</option><option>Alto</option><option>Moderado</option><option>Bajo</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg2">
+            <div class="fg"><label class="flbl">Gestión del cambio cerrada por (Nombre)</label><input type="text" class="fi" id="gc-f-cierre-nombre" placeholder="Nombre"></div>
+            <div class="fg"><label class="flbl">Cargo</label><input type="text" class="fi" id="gc-f-cierre-cargo" placeholder="Cargo"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /mbody -->
+    <div class="mfoot">
+      <button class="btn btn-s" onclick="CM('md-gc-new')">Cancelar</button>
+      <button class="btn btn-p" onclick="saveGC()">💾 Guardar Registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VISTA PREVIA PANTALLA COMPLETA ═══ -->
+<div id="gc-fullpreview" style="display:none;position:fixed;inset:0;z-index:900;background:#6b7280;overflow-y:auto">
+  <!-- Barra superior -->
+  <div id="gc-fp-bar" style="position:sticky;top:0;z-index:10;background:#1a202c;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;box-shadow:0 2px 8px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="color:#fff;font-size:13px;font-weight:700">👁 Vista Previa</span>
+      <span id="gc-fp-num" style="background:rgba(255,255,255,.12);color:#fff;font-size:11px;padding:2px 10px;border-radius:20px"></span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="gcPrintPreview()" style="background:#0d5c36;border:none;color:#fff;border-radius:7px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit">🖨 Imprimir / PDF</button>
+      <button onclick="gcClosePreview()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">✕ Cerrar</button>
+    </div>
+  </div>
+  <!-- Página documento simulada -->
+  <div style="padding:28px 20px 48px;display:flex;justify-content:center">
+    <div id="gc-prev-body" style="background:#fff;width:100%;max-width:900px;box-shadow:0 4px 32px rgba(0,0,0,.35);border-radius:4px;padding:28px 32px;min-height:800px"></div>
+  </div>
+</div>
+
+<!-- ═══ VISTA PREVIA ACTA PANTALLA COMPLETA ═══ -->
+<div id="acta-fullpreview" style="display:none;position:fixed;inset:0;z-index:910;background:#4b5563;overflow-y:auto">
+  <div style="position:sticky;top:0;z-index:10;background:#1a202c;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;box-shadow:0 2px 8px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="color:#fff;font-size:13px;font-weight:700">📋 Acta de Reunión</span>
+      <span id="acta-fp-num" style="background:rgba(255,255,255,.12);color:#fff;font-size:11px;padding:2px 10px;border-radius:20px"></span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="actaPrintWindow()" style="background:#1a3b66;border:none;color:#fff;border-radius:7px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🖨 Imprimir / PDF</button>
+      <button onclick="actaClosePreview()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">✕ Cerrar</button>
+    </div>
+  </div>
+  <div style="padding:28px 20px 60px;display:flex;justify-content:center">
+    <div id="acta-prev-body" style="background:#fff;width:100%;max-width:860px;box-shadow:0 4px 32px rgba(0,0,0,.35);border-radius:4px;padding:0;min-height:800px;overflow:hidden"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: SQL SUPABASE SETUP ═══ -->
+<div class="bd" id="md-gc-sql" style="display:none" onclick="closeBD(event,'md-gc-sql')">
+  <div class="modal lg" style="max-width:700px">
+    <div class="mhead" style="background:#1a3b66">
+      <div><div class="mh-title">🗄️ Configuración Supabase — Gestión del Cambio</div><div class="mh-sub"><span>Ejecuta este SQL en el Editor SQL de Supabase</span></div></div>
+      <button class="mclose" onclick="CM('md-gc-sql')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="alert al-info" style="margin-bottom:12px">📋 Copia y ejecuta este script en <strong>Supabase → SQL Editor</strong> para crear la tabla de Gestión del Cambio.</div>
+      <textarea class="fta" id="gc-sql-box" readonly rows="22" style="font-family:monospace;font-size:11.5px;background:#0f172a;color:#7dd3fc;border:none;border-radius:8px;padding:14px;resize:none;width:100%">-- ═══ TABLA: gestion_cambios ═══
+-- Ejecutar en Supabase → SQL Editor
+
+CREATE TABLE IF NOT EXISTS public.gestion_cambios (
+  id          BIGINT PRIMARY KEY,
+  num         INTEGER NOT NULL,
+  fecha       DATE,
+  proc        TEXT DEFAULT '',
+  resp        TEXT DEFAULT '',
+  cargo       TEXT DEFAULT '',
+  ver         TEXT DEFAULT '3',
+  situacion   TEXT DEFAULT '',
+  propuesta   TEXT DEFAULT '',
+  aprobado    TEXT DEFAULT '',
+  aprobador   TEXT DEFAULT '',
+  cargo_aprobador TEXT DEFAULT '',
+  comunicar   TEXT DEFAULT '',
+  aprobacion_plan TEXT DEFAULT '',
+  estado      TEXT DEFAULT 'ABIERTO',
+  fecha_cierre DATE,
+  impacto     TEXT DEFAULT '',
+  cierre_nombre TEXT DEFAULT '',
+  cierre_cargo  TEXT DEFAULT '',
+  riesgos     JSONB DEFAULT '[]'::jsonb,
+  planes      JSONB DEFAULT '[]'::jsonb,
+  updated_at  TIMESTAMPTZ DEFAULT now(),
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- Habilitar Row Level Security (RLS)
+ALTER TABLE public.gestion_cambios ENABLE ROW LEVEL SECURITY;
+
+-- Política: acceso total con anon key (ajustar según necesidad)
+CREATE POLICY "allow_all_gc" ON public.gestion_cambios
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- Índice para búsqueda rápida
+CREATE INDEX IF NOT EXISTS idx_gc_num ON public.gestion_cambios(num);
+CREATE INDEX IF NOT EXISTS idx_gc_estado ON public.gestion_cambios(estado);
+CREATE INDEX IF NOT EXISTS idx_gc_proc ON public.gestion_cambios(proc);</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-p" onclick="navigator.clipboard.writeText($('gc-sql-box').value).then(()=>toast('SQL copiado al portapapeles','ok'))">📋 Copiar SQL</button>
+        <a href="https://supabase.com/dashboard" target="_blank" class="btn btn-s">🔗 Abrir Supabase</a>
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn btn-s" onclick="CM('md-gc-sql')">Cerrar</button></div>
+  </div>
+</div>
+<div class="bd" id="md-gc-editkey" style="display:none" onclick="closeBD(event,'md-gc-editkey')">
+  <div class="modal sm">
+    <div class="mhead" style="background:#1a3b66"><div class="mh-title">🔑 Acceso requerido</div><button class="mclose" onclick="CM('md-gc-editkey')">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Ingresa la clave para continuar.</p>
+      <div class="fg"><label class="flbl">Clave</label><input type="password" class="fi" id="gc-editkey-input" placeholder="••••••" onkeydown="if(event.key==='Enter')gcConfirmEditKey()"></div>
+      <p style="font-size:11px;color:var(--red);margin-top:6px;display:none" id="gc-editkey-err">⚠️ Clave incorrecta. Intente nuevamente.</p>
+    </div>
+    <div class="mfoot"><button class="btn btn-s" onclick="CM('md-gc-editkey')">Cancelar</button><button class="btn btn-p" onclick="gcConfirmEditKey()">Acceder</button></div>
+  </div>
+</div>
+<div class="bd" id="md-cambio-clave" style="display:none" onclick="closeBD(event,'md-cambio-clave')">
+  <div class="modal sm">
+    <div class="mhead" style="background:var(--red)"><div class="mh-title">🔒 Clave requerida para eliminar</div><button class="mclose" onclick="CM('md-cambio-clave')">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Ingresa la clave de seguridad para eliminar este registro de cambio.</p>
+      <div class="fg"><label class="flbl">Clave de seguridad</label><input type="password" class="fi" id="gc-clave-input" placeholder="••••" onkeydown="if(event.key==='Enter')gcCheckClave()"></div>
+      <p style="font-size:11px;color:var(--red);margin-top:6px;display:none" id="gc-clave-err">⚠️ Clave incorrecta. Intente nuevamente.</p>
+    </div>
+    <div class="mfoot"><button class="btn btn-s" onclick="CM('md-cambio-clave')">Cancelar</button><button class="btn btn-d" onclick="gcCheckClave()">🗑 Eliminar</button></div>
+  </div>
+</div>
 
 <!-- ═══ MODAL: NUEVO REGISTRO ═══ -->
 <div class="bd" id="md-new" style="display:none" onclick="closeBD(event,'md-new')">
@@ -1432,6 +1844,7 @@ function authCancel(){
 
 // ═══ STATE ═══
 let YEAR=2026, MOD='', TCAT='', VMODE='cards', sbMode=false;
+const LOGO_B64='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';
 
 // ═══════════════════════════════════════════════
 //  ⚙️  SUPABASE CONFIG — rellena tus credenciales
@@ -1680,6 +2093,11 @@ function showPage(p,el){
     renderActas();
     // Load from Supabase in background and refresh
     loadACTAFromSupa().then(ok=>{if(ok)renderActas();});
+  }
+  if(p==='cambio'){
+    loadGC();
+    renderGC();
+    loadGCFromSupa().then(ok=>{if(ok)renderGC();});
   }
 }
 
@@ -3641,6 +4059,42 @@ function actaEdit(id){
 }
 function clearActaF(){['actf-tipo','actf-anio','actf-modal'].forEach(id=>{if($(id))$(id).value=''});if($('actf-q'))$('actf-q').value='';renderActas();}
 
+function actaClosePreview(){
+  $('acta-fullpreview').style.display='none';
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('acta-fullpreview').style.display!=='none')actaClosePreview();});
+
+let _actaPrintData=null; // holds {html,numActa} for print window
+
+function actaPrintWindow(){
+  if(!_actaPrintData) return;
+  const w=window.open('','_blank','width=1000,height=1150,menubar=no,toolbar=no,location=no,scrollbars=yes');
+  if(!w){toast('Permite ventanas emergentes para imprimir','err');return;}
+  w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Acta ${_actaPrintData.numActa}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#e5e7eb}
+.toolbar{position:sticky;top:0;z-index:100;background:#111827;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:54px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.t-left{display:flex;align-items:center;gap:12px}
+.t-title{color:#fff;font-size:13px;font-weight:700}
+.t-num{background:rgba(255,255,255,.12);color:#fff;font-size:11px;padding:3px 12px;border-radius:20px}
+.t-right{display:flex;gap:10px}
+.btn-print{background:#1a3b66;color:#fff;border:none;border-radius:7px;padding:9px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+.btn-close{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif}
+.page-area{padding:28px 20px 52px;display:flex;justify-content:center}
+.doc-sheet{background:#fff;width:100%;max-width:860px;box-shadow:0 4px 40px rgba(0,0,0,.28);border-radius:3px;padding:0;overflow:hidden}
+@media print{body{background:#fff}.toolbar{display:none!important}.page-area{padding:0;display:block}.doc-sheet{box-shadow:none;max-width:100%;border-radius:0}@page{size:A4 portrait;margin:1.5cm 1.5cm 2cm}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+</style></head><body>
+<div class="toolbar">
+  <div class="t-left"><span class="t-title">📋 Acta de Reunión</span><span class="t-num">${_actaPrintData.numActa}</span></div>
+  <div class="t-right"><button class="btn-print" onclick="window.print()">🖨 Imprimir / Guardar PDF</button><button class="btn-close" onclick="window.close()">✕ Cerrar</button></div>
+</div>
+<div class="page-area"><div class="doc-sheet">${_actaPrintData.html}</div></div>
+</body></html>`);
+  w.document.close();w.focus();
+}
+
 function actaPrint(id,fromForm){
   let a;
   if(fromForm){
@@ -3652,24 +4106,825 @@ function actaPrint(id,fromForm){
       objetivo:$('actn-objetivo')?$('actn-objetivo').value:'',
       asistentes:[...actaAsistRows],agenda:[...actaAgendaRows],tareas:[...actaTareaRows]};
   }else{loadACTA();a=ACTA_DB.find(r=>r.id===id);if(!a){toast('Acta no encontrada','err');return;}}
-  const LOGO_B64='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';
+
   const asistHtml=(a.asistentes||[]).length?`<table style="width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:33%">Nombre</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:28%">Cargo</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left">Firma</th></tr></thead><tbody>${(a.asistentes).map((r,i)=>{const fUri=actaGetFirma(r.nombre||'');const fH=fUri?`<img src="${fUri}" style="height:42px;max-width:130px;object-fit:contain;filter:contrast(1.2)" alt="firma">`:(r.firma||'&nbsp;');return`<tr style="border-bottom:1px solid #e2e8f0;background:${i%2?'#f8fafc':'#fff'}"><td style="padding:7px 9px">${r.nombre||''}</td><td style="padding:7px 9px">${r.cargo||''}</td><td style="padding:7px 9px;min-height:46px">${fH}</td></tr>`;}).join('')}</tbody></table>`:'<p style="color:#718096;font-size:11.5px;padding:8px 0">Sin asistentes</p>';
   const agendaHtml=(a.agenda||[]).length?`<table style="width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:center;width:44px">N°</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:35%">Tema</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left">Desarrollo</th></tr></thead><tbody>${(a.agenda).map((r,i)=>`<tr style="border-bottom:1px solid #e2e8f0;background:${i%2?'#f8fafc':'#fff'}"><td style="padding:8px 9px;text-align:center;font-weight:700;color:#1a3b66">${i+1}</td><td style="padding:8px 9px;font-weight:600">${r.tema||''}</td><td style="padding:8px 9px;line-height:1.6">${r.desarrollo||''}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#718096;font-size:11.5px;padding:8px 0">Sin agenda</p>';
   const tareasHtml=(a.tareas||[]).length?`<table style="width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left">Compromiso</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:150px">Responsable</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:110px">Fecha Límite</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:100px">Estado</th></tr></thead><tbody>${(a.tareas).map((t,i)=>`<tr style="border-bottom:1px solid #e2e8f0;background:${i%2?'#f8fafc':'#fff'}"><td style="padding:7px 9px">${t.desc||'—'}</td><td style="padding:7px 9px">${t.resp||'—'}</td><td style="padding:7px 9px">${t.limite||'—'}</td><td style="padding:7px 9px;font-weight:700;color:${t.estado==='EJECUTADA'?'#0d5c36':'#c0392b'}">${t.estado||'—'}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#718096;font-size:11.5px;padding:8px 0">Sin compromisos</p>';
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Acta ${a.numActa||''}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:12px;color:#1a202c;padding:24px 28px 90px}.doc-header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #1a3b66;padding-bottom:12px;margin-bottom:16px}.doc-header-left{display:flex;align-items:center;gap:14px}.doc-header-left img{height:52px;width:auto}.doc-header-text h1{font-size:14px;color:#1a3b66;font-weight:700}.doc-header-text p{font-size:10px;color:#718096;margin-top:2px}.doc-header-right{text-align:right;font-size:11px;color:#1a3b66;font-weight:700;background:#f0fdf4;border:1px solid #b2e8ce;border-radius:6px;padding:7px 12px}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px}.meta-item .lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096}.meta-item .val{font-size:12px;font-weight:600;color:#1a202c;margin-top:2px}.section{margin-bottom:14px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden}.section-hd{background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px}.section-num{width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}.section-body{padding:10px 12px}.obj-box{background:#f0fdf4;border:1px solid #b2e8ce;border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6}.preview-banner{background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:11.5px;color:#92400e;font-weight:600;text-align:center}.doc-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #1a3b66;display:flex;align-items:center;padding:7px 24px;gap:16px}.doc-footer img{height:36px;width:auto}.doc-footer-center{flex:1;text-align:center}.doc-footer-title{font-size:10px;font-weight:700;color:#1a3b66;text-transform:uppercase;letter-spacing:.06em;display:block}.doc-footer-sub{font-size:9px;color:#718096;display:block;margin-top:2px}.doc-footer-right{font-size:9px;color:#718096;text-align:right;white-space:nowrap;min-width:80px}@media print{.preview-banner{display:none}body{padding:12px 14px 90px}@page{margin:1cm 1cm 2.5cm}}</style></head><body>
-${fromForm?'<div class="preview-banner">⚠️ VISTA PREVIA — Documento no guardado aún</div>':''}
-<div class="doc-header"><div class="doc-header-left"><img src="data:image/jpeg;base64,${LOGO_B64}" alt="AA"><div class="doc-header-text"><h1>ACTA DE REUNIÓN</h1><p>Sistema de Gestión HSEQ · Auditoría Ambiental</p></div></div><div class="doc-header-right">N° ${a.numActa||'—'}</div></div>
-<div class="meta-grid"><div class="meta-item"><div class="lbl">Tipo</div><div class="val">${a.tipo||'—'}</div></div><div class="meta-item"><div class="lbl">Modalidad</div><div class="val">${a.modalidad||'—'}</div></div><div class="meta-item"><div class="lbl">Fecha</div><div class="val">${a.fecha||'—'}</div></div><div class="meta-item"><div class="lbl">Hora Inicio</div><div class="val">${a.hinicio||'—'}</div></div><div class="meta-item"><div class="lbl">Hora Finalización</div><div class="val">${a.hfin||'—'}</div></div><div class="meta-item"><div class="lbl">Lugar / Enlace</div><div class="val">${a.lugar||'—'}</div></div></div>
-${a.objetivo?`<div class="section"><div class="section-hd">Objetivo</div><div class="section-body"><div class="obj-box">${a.objetivo}</div></div></div>`:''}
-<div class="section"><div class="section-hd"><span class="section-num">1</span>Asistentes</div><div class="section-body">${asistHtml}</div></div>
-<div class="section"><div class="section-hd"><span class="section-num">2</span>Agenda y Desarrollo</div><div class="section-body">${agendaHtml}</div></div>
-<div class="section"><div class="section-hd"><span class="section-num">3</span>Compromisos y Tareas</div><div class="section-body">${tareasHtml}</div></div>
-${(a.adjuntos||[]).length?`<div class="section"><div class="section-hd"><span class="section-num">4</span>Adjuntos</div><div class="section-body"><div style="display:flex;flex-wrap:wrap;gap:12px">${(a.adjuntos).map(f=>f.type&&f.type.startsWith('image/')?`<div style="text-align:center"><img src="${f.dataUrl}" style="max-width:200px;max-height:160px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block"><div style="font-size:9px;color:#718096;margin-top:3px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div></div>`:`<div style="display:flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px"><span style="font-size:20px">${f.type&&f.type.includes('pdf')?'📄':f.name.endsWith('.docx')||f.name.endsWith('.doc')?'📝':'📊'}</span><span style="font-size:11px;color:#1a202c">${f.name}</span></div>`).join('')}</div></div></div>`:''}
-<div class="doc-footer"><img src="data:image/jpeg;base64,${LOGO_B64}" alt="logo"><div class="doc-footer-center"><span class="doc-footer-title">ACTA DEL SISTEMA DE GESTIÓN</span><span class="doc-footer-sub">FORMATO: P-PG-02/F-03</span></div><div class="doc-footer-right">Sistema de Gestión / P / G<br>P-PG-02 / F-03 · Ver.8<br>Generado: ${new Date().toLocaleDateString('es-CO')}</div></div>
-<script>window.onload=()=>{window.print();}<\/script></body></html>`;
-  const w=window.open('','_blank','width=960,height=1050');w.document.write(html);w.document.close();
+
+  // ── Construir HTML del documento (sin popup) ──
+  const docHtml=`<div style="font-family:Arial,sans-serif;font-size:12px;color:#1a202c;padding:24px 28px 80px;position:relative;">
+
+${fromForm?'<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:11.5px;color:#92400e;font-weight:600;text-align:center">⚠️ VISTA PREVIA — Documento no guardado aún</div>':''}
+
+<!-- ENCABEZADO estilo imagen 2 -->
+<div style="display:flex;align-items:center;justify-content:space-between;border:2px solid #1a3b66;border-radius:10px;padding:12px 18px;margin-bottom:18px;gap:14px;">
+  <div style="display:flex;align-items:center;gap:16px;flex:1;">
+    <img src="data:image/jpeg;base64,${LOGO_B64}" alt="Auditoría Ambiental" style="height:56px;width:auto;flex-shrink:0;">
+    <div style="width:2px;height:50px;background:#1a3b66;border-radius:2px;flex-shrink:0;"></div>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#1a3b66;letter-spacing:.01em;">ACTA DE REUNIÓN</div>
+      <div style="font-size:10px;color:#718096;margin-top:4px;">Sistema de Gestión HSEQ &nbsp;·&nbsp; Auditoría Ambiental</div>
+    </div>
+  </div>
+  <div style="font-size:12px;font-weight:700;color:#1a3b66;border:2px solid #1a3b66;border-radius:8px;padding:8px 18px;white-space:nowrap;background:#f0f4ff;">N° ${a.numActa||'—'}</div>
+</div>
+
+<!-- META GRID -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:14px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+  <div style="padding:8px 12px;border-right:1px solid #e2e8f0;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Tipo</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.tipo||'—'}</div></div>
+  <div style="padding:8px 12px;border-right:1px solid #e2e8f0;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Modalidad</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.modalidad||'—'}</div></div>
+  <div style="padding:8px 12px;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Fecha</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.fecha||'—'}</div></div>
+  <div style="padding:8px 12px;border-right:1px solid #e2e8f0;border-top:1px solid #e2e8f0;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Hora Inicio</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.hinicio||'—'}</div></div>
+  <div style="padding:8px 12px;border-right:1px solid #e2e8f0;border-top:1px solid #e2e8f0;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Hora Finalización</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.hfin||'—'}</div></div>
+  <div style="padding:8px 12px;border-top:1px solid #e2e8f0;background:#f8fafc;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718096;">Lugar / Enlace</div><div style="font-size:12px;font-weight:600;color:#1a202c;margin-top:3px;">${a.lugar||'—'}</div></div>
+</div>
+
+${a.objetivo?`<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;">Objetivo</div><div style="padding:10px 12px;"><div style="background:#f0fdf4;border:1px solid #b2e8ce;border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6;">${a.objetivo}</div></div></div>`:''}
+
+<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">1</span>Asistentes</div><div style="padding:10px 12px;">${asistHtml}</div></div>
+<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span>Agenda y Desarrollo</div><div style="padding:10px 12px;">${agendaHtml}</div></div>
+<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">3</span>Compromisos y Tareas</div><div style="padding:10px 12px;">${tareasHtml}</div></div>
+
+${(a.adjuntos||[]).length?`<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span>Adjuntos</div><div style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:12px;">${(a.adjuntos).map(f=>f.type&&f.type.startsWith('image/')?`<div style="text-align:center"><img src="${f.dataUrl}" style="max-width:180px;max-height:140px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block"><div style="font-size:9px;color:#718096;margin-top:3px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div></div>`:`<div style="display:flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px"><span style="font-size:20px">${f.type&&f.type.includes('pdf')?'📄':f.name.endsWith('.docx')||f.name.endsWith('.doc')?'📝':'📊'}</span><span style="font-size:11px">${f.name}</span></div>`).join('')}</div></div>`:''}
+
+<!-- PIE DE PÁGINA estilo imagen 1 -->
+<div style="position:absolute;bottom:0;left:0;right:0;height:54px;background:#fff;border-top:2.5px solid #1a3b66;display:flex;align-items:center;padding:0 20px;gap:0;">
+  <img src="data:image/jpeg;base64,${LOGO_B64}" alt="logo" style="height:36px;width:auto;flex-shrink:0;">
+  <div style="width:1.5px;height:34px;background:#e2e8f0;margin:0 14px;flex-shrink:0;"></div>
+  <div style="flex:1;text-align:center;line-height:1.5;">
+    <span style="font-size:10px;font-weight:700;color:#1a3b66;text-transform:uppercase;letter-spacing:.07em;display:block;">ACTA DEL SISTEMA DE GESTIÓN</span>
+    <span style="font-size:8.5px;color:#718096;display:block;margin-top:2px;">FORMATO: P-PG-02/F-03</span>
+  </div>
+  <div style="width:1.5px;height:34px;background:#e2e8f0;margin:0 14px;flex-shrink:0;"></div>
+  <div style="font-size:8.5px;color:#718096;text-align:right;white-space:nowrap;min-width:110px;line-height:1.6;">Sistema de Gestión / P / G<br>P-PG-02 / F-03 &nbsp;·&nbsp; Ver.8<br>Generado: ${new Date().toLocaleDateString('es-CO')}</div>
+</div>
+
+</div>`;
+
+  // Guardar para la ventana de impresión
+  _actaPrintData = {html: docHtml, numActa: a.numActa||'—'};
+
+  // Mostrar en overlay pantalla completa
+  $('acta-prev-body').innerHTML = docHtml;
+  $('acta-fp-num').textContent = a.numActa||'—';
+  document.body.style.overflow = 'hidden';
+  $('acta-fullpreview').style.display = 'block';
+  $('acta-fullpreview').scrollTop = 0;
 }
+
+
+// ═══════════════════════════════════════════════
+//  🔄  GESTIÓN DEL CAMBIO
+// ═══════════════════════════════════════════════
+
+let GC_DB = [];
+let GC_NEXT_NUM = 11;
+let GC_DELETE_ID = null;
+const GC_KEY = 'hseq_gc_v1';
+const GC_CLAVE = '2026';
+const GC_EDIT_KEY = 'Cambio'; // edit key — not displayed in UI
+
+function gcSave(){
+  try{localStorage.setItem(GC_KEY, JSON.stringify({db:GC_DB,nextNum:GC_NEXT_NUM}));}catch(e){}
+}
+function loadGC(){
+  const raw = localStorage.getItem(GC_KEY);
+  if(raw){try{const p=JSON.parse(raw);GC_DB=p.db||[];GC_NEXT_NUM=p.nextNum||11;}catch(e){GC_DB=[];GC_NEXT_NUM=11;}}
+}
+function gcFormatNum(n){ return 'GC-' + String(n).padStart(3,'0'); }
+
+// ── Riesgo rows ──
+let _gcRiesgos = [];
+const GC_PIV_OPTS = `<option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>`;
+
+function gcNivelInfo(v){
+  const n=parseInt(v)||0;
+  if(!n) return {label:'—',cls:'',bg:'',color:'#94a3b8'};
+  if(n>=20) return {label:'Extremo',cls:'gc-nivel-Extremo',bg:'#c0392b',color:'#fff'};
+  if(n>=12) return {label:'Alto',   cls:'gc-nivel-Alto',   bg:'#e67e22',color:'#fff'};
+  if(n>=6)  return {label:'Moderado',cls:'gc-nivel-Moderado',bg:'#f1c40f',color:'#333'};
+  if(n>=3)  return {label:'Menor',  cls:'gc-nivel-Menor',  bg:'#27ae60',color:'#fff'};
+  return     {label:'Bajo',   cls:'gc-nivel-Bajo',   bg:'#2ecc71',color:'#fff'};
+}
+function gcNivelBadge(p,i){
+  const pv=parseInt(p)||0, iv=parseInt(i)||0;
+  if(!pv||!iv) return '<span style="color:#94a3b8;font-size:11px">—</span>';
+  const val=pv*iv;
+  const info=gcNivelInfo(val);
+  return `<span class="gc-nivel-pill ${info.cls}">${info.label}</span>`;
+}
+function gcNivelBadgeFull(p,i){
+  // returns {vDisplay, badge} for use in preview
+  const pv=parseInt(p)||0, iv=parseInt(i)||0;
+  if(!pv||!iv) return {vDisplay:'—', badge:'—'};
+  const val=pv*iv;
+  const info=gcNivelInfo(val);
+  return {vDisplay:val, badge:`<span style="display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;background:${info.bg};color:${info.color}">${info.label}</span>`};
+}
+
+function gcAddRiesgo(data){
+  data=data||{};
+  const tr=document.createElement('tr');
+  tr.className='gc-riesgo-row';
+  const pv=data.p||'', iv=data.i||'';
+  const vval=(parseInt(pv)&&parseInt(iv))?(parseInt(pv)*parseInt(iv)):'';
+  const badge=gcNivelBadge(pv,iv);
+  tr.innerHTML=`
+    <td><textarea class="gc-riesgo-ta" data-f="riesgo" rows="3" placeholder="Descripción del riesgo...">${data.riesgo||''}</textarea></td>
+    <td><textarea class="gc-riesgo-ta" data-f="efecto" rows="3" placeholder="Efecto posible...">${data.efecto||''}</textarea></td>
+    <td><textarea class="gc-riesgo-ta" data-f="control" rows="3" placeholder="Controles existentes...">${data.control||''}</textarea></td>
+    <td style="text-align:center;vertical-align:middle">
+      <select class="gc-riesgo-sel" data-f="p" onchange="gcCalcNivel(this)" title="Probabilidad (1=Raro, 5=Casi Seguro)" style="width:52px;border:1.5px solid var(--b2);border-radius:5px;padding:4px 3px;font-size:13px;font-weight:700;text-align:center;color:#1a3b66;background:#f0f8ff;outline:none">${GC_PIV_OPTS}</select>
+    </td>
+    <td style="text-align:center;vertical-align:middle">
+      <select class="gc-riesgo-sel" data-f="i" onchange="gcCalcNivel(this)" title="Impacto (1=Insignificante, 5=Catastrófico)" style="width:52px;border:1.5px solid var(--b2);border-radius:5px;padding:4px 3px;font-size:13px;font-weight:700;text-align:center;color:#1a3b66;background:#f0f8ff;outline:none">${GC_PIV_OPTS}</select>
+    </td>
+    <td style="text-align:center;vertical-align:middle;font-size:14px;font-weight:800;color:#0d3d24">
+      <div class="gc-v-display" style="min-width:28px">${vval||'—'}</div>
+    </td>
+    <td style="text-align:center;vertical-align:middle"><div class="gc-nivel-display" style="min-width:70px">${badge}</div></td>
+    <td><textarea class="gc-riesgo-ta" data-f="tratamiento" rows="3" placeholder="Tratamiento...">${data.tratamiento||''}</textarea></td>
+    <td style="width:32px;text-align:center;vertical-align:middle"><button onclick="this.closest('tr').remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;line-height:1;padding:2px" title="Eliminar fila">✕</button></td>`;
+  // Set select values after appending
+  $('gc-riesgos-body').appendChild(tr);
+  if(pv) tr.querySelector('[data-f="p"]').value=pv;
+  if(iv) tr.querySelector('[data-f="i"]').value=iv;
+}
+
+function gcCalcNivel(sel){
+  const tr=sel.closest('tr');
+  const p=tr.querySelector('[data-f="p"]').value;
+  const i=tr.querySelector('[data-f="i"]').value;
+  const pv=parseInt(p)||0, iv=parseInt(i)||0;
+  const val=pv&&iv?pv*iv:null;
+  tr.querySelector('.gc-v-display').textContent=val||'—';
+  tr.querySelector('.gc-nivel-display').innerHTML=gcNivelBadge(p,i);
+}
+
+function gcGetRiesgos(){
+  return Array.from($('gc-riesgos-body').querySelectorAll('tr.gc-riesgo-row')).map(tr=>({
+    riesgo:tr.querySelector('[data-f="riesgo"]').value,
+    efecto:tr.querySelector('[data-f="efecto"]').value,
+    control:tr.querySelector('[data-f="control"]').value,
+    p:tr.querySelector('[data-f="p"]').value,
+    i:tr.querySelector('[data-f="i"]').value,
+    tratamiento:tr.querySelector('[data-f="tratamiento"]').value,
+  }));
+}
+
+// ── Plan de acción rows ──
+let _gcPlanes = [];
+function gcAddPlan(data){
+  data=data||{};
+  const tr=document.createElement('tr');
+  tr.className='gc-plan-row';
+  tr.innerHTML=`
+    <td><textarea class="gc-plan-ta" rows="2" data-f="actividad" placeholder="Descripción de la actividad...">${data.actividad||''}</textarea></td>
+    <td><input type="text" class="gc-plan-fi" data-f="responsable" placeholder="Responsable" value="${data.responsable||''}"></td>
+    <td><input type="date" class="gc-plan-fi" data-f="fecha" value="${data.fecha||''}"></td>
+    <td><input type="date" class="gc-plan-fi" data-f="fecha_seg" value="${data.fecha_seg||''}"></td>
+    <td><textarea class="gc-plan-ta" rows="2" data-f="observacion" placeholder="Observaciones...">${data.observacion||''}</textarea></td>
+    <td><button onclick="this.closest('tr').remove()" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:15px;padding:2px">✕</button></td>`;
+  $('gc-plan-body').appendChild(tr);
+}
+function gcGetPlanes(){
+  return Array.from($('gc-plan-body').querySelectorAll('tr.gc-plan-row')).map(tr=>({
+    actividad: tr.querySelector('[data-f="actividad"]').value,
+    responsable: tr.querySelector('[data-f="responsable"]').value,
+    fecha: tr.querySelector('[data-f="fecha"]').value,
+    fecha_seg: tr.querySelector('[data-f="fecha_seg"]').value,
+    observacion: tr.querySelector('[data-f="observacion"]').value,
+  }));
+}
+
+function gcToggleOtros(){
+  const v=$('gc-f-proc').value;
+  $('gc-otros-wrap').classList.toggle('show', v==='Otros');
+  const sel=$('gc-f-proc-otros');
+  sel.onchange=function(){
+    $('gc-f-proc-custom').style.display=this.value==='Otro (especificar)'?'block':'none';
+  };
+}
+function gcGetProcFinal(){
+  const p=$('gc-f-proc').value;
+  if(p!=='Otros') return p;
+  const o=$('gc-f-proc-otros').value;
+  if(o==='Otro (especificar)') return $('gc-f-proc-custom').value.trim()||'Otros';
+  return o||'Otros';
+}
+
+// ── Edit key auth ──
+let _gcPendingEditId = undefined;
+function gcRequestEdit(id){
+  _gcPendingEditId = id;
+  $('gc-editkey-input').value='';
+  $('gc-editkey-err').style.display='none';
+  $('md-gc-editkey').style.display='flex';
+  setTimeout(()=>$('gc-editkey-input').focus(),120);
+}
+function gcConfirmEditKey(){
+  if($('gc-editkey-input').value === GC_EDIT_KEY){
+    CM('md-gc-editkey');
+    openGcNew(_gcPendingEditId);
+    _gcPendingEditId=undefined;
+  } else {
+    $('gc-editkey-err').style.display='block';
+    $('gc-editkey-input').value='';
+    $('gc-editkey-input').focus();
+  }
+}
+
+function openGcNew(id){
+  loadGC();
+  const isEdit=id!==undefined;
+  const r=isEdit?GC_DB.find(x=>x.id===id):null;
+
+  $('gc-modal-title').textContent=isEdit?'✏️ Editar Registro de Cambio':'🔄 Nuevo Registro de Cambio';
+  $('gc-modal-num').textContent=isEdit?gcFormatNum(r.num):'N° '+gcFormatNum(GC_NEXT_NUM);
+  $('gc-f-num').value=isEdit?gcFormatNum(r.num):gcFormatNum(GC_NEXT_NUM);
+  $('gc-f-fecha').value=isEdit?r.fecha:new Date().toISOString().slice(0,10);
+
+  const stdProcs=['Gerencial','Técnico','HSEQ'];
+  $('gc-f-proc').value=isEdit?(stdProcs.includes(r.proc)?r.proc:'Otros'):'';
+  gcToggleOtros();
+  if(isEdit && !stdProcs.includes(r.proc)){
+    const std=['Administrativo','Financiero','Comercial','Calidad','Operativo','Logística','Recursos Humanos','Tecnología','Legal / Cumplimiento'];
+    if(std.includes(r.proc)){$('gc-f-proc-otros').value=r.proc;$('gc-f-proc-custom').style.display='none';}
+    else{$('gc-f-proc-otros').value='Otro (especificar)';$('gc-f-proc-custom').style.display='block';$('gc-f-proc-custom').value=r.proc;}
+  }
+
+  $('gc-f-resp').value=isEdit?(r.resp||''):'';
+  $('gc-f-cargo').value=isEdit?(r.cargo||''):'';
+  $('gc-f-situacion').value=isEdit?(r.situacion||''):'';
+  $('gc-f-propuesta').value=isEdit?(r.propuesta||''):'';
+  $('gc-f-aprobado').value=isEdit?(r.aprobado||''):'';
+  $('gc-f-aprobador').value=isEdit?(r.aprobador||''):'';
+  $('gc-f-cargo-aprobador').value=isEdit?(r.cargoAprobador||''):'';
+  $('gc-f-comunicar').value=isEdit?(r.comunicar||''):'';
+  $('gc-f-aprobacion-plan').value=isEdit?(r.aprobacionPlan||''):'';
+  $('gc-f-estado').value=isEdit?(r.estado||'ABIERTO'):'ABIERTO';
+  $('gc-f-fecha-cierre').value=isEdit?(r.fechaCierre||''):'';
+  $('gc-f-impacto').value=isEdit?(r.impacto||''):'';
+  $('gc-f-cierre-nombre').value=isEdit?(r.cierreNombre||''):'';
+  $('gc-f-cierre-cargo').value=isEdit?(r.cierreCargo||''):'';
+
+  // Riesgos
+  $('gc-riesgos-body').innerHTML='';
+  _gcRiesgos=[];
+  if(isEdit && r.riesgos && r.riesgos.length){
+    r.riesgos.forEach(rg=>gcAddRiesgo(rg));
+  } else {
+    gcAddRiesgo();
+  }
+  // Plan
+  $('gc-plan-body').innerHTML='';
+  _gcPlanes=[];
+  if(isEdit && r.planes && r.planes.length){
+    r.planes.forEach(pl=>gcAddPlan(pl));
+  } else {
+    gcAddPlan();
+  }
+
+  $('md-gc-new').dataset.editId=isEdit?id:'';
+  $('md-gc-new').style.display='flex';
+}
+
+function saveGC(){
+  const resp=$('gc-f-resp').value.trim();
+  const proc=gcGetProcFinal();
+  const fecha=$('gc-f-fecha').value;
+  const situacion=$('gc-f-situacion').value.trim();
+  if(!resp){toast('Ingresa el nombre del solicitante','err');return;}
+  if(!proc){toast('Selecciona el proceso','err');return;}
+  if(!fecha){toast('Selecciona la fecha','err');return;}
+  if(!situacion){toast('Describe la situación del cambio','err');return;}
+
+  loadGC();
+  const editIdStr=$('md-gc-new').dataset.editId;
+  const isEdit=!!editIdStr;
+
+  const rec={
+    id:isEdit?parseInt(editIdStr):Date.now(),
+    num:isEdit?GC_DB.find(r=>r.id===parseInt(editIdStr)).num:GC_NEXT_NUM,
+    fecha, proc, resp,
+    cargo:$('gc-f-cargo').value.trim(),
+    ver:'3',
+    situacion,
+    propuesta:$('gc-f-propuesta').value.trim(),
+    aprobado:$('gc-f-aprobado').value,
+    aprobador:$('gc-f-aprobador').value.trim(),
+    cargoAprobador:$('gc-f-cargo-aprobador').value.trim(),
+    comunicar:$('gc-f-comunicar').value.trim(),
+    aprobacionPlan:$('gc-f-aprobacion-plan').value,
+    estado:$('gc-f-estado').value,
+    fechaCierre:$('gc-f-fecha-cierre').value,
+    impacto:$('gc-f-impacto').value,
+    cierreNombre:$('gc-f-cierre-nombre').value.trim(),
+    cierreCargo:$('gc-f-cierre-cargo').value.trim(),
+    riesgos:gcGetRiesgos(),
+    planes:gcGetPlanes(),
+    creado:isEdit?GC_DB.find(r=>r.id===parseInt(editIdStr)).creado:new Date().toISOString()
+  };
+
+  if(isEdit){const idx=GC_DB.findIndex(r=>r.id===parseInt(editIdStr));if(idx>=0)GC_DB[idx]=rec;}
+  else{GC_DB.push(rec);GC_NEXT_NUM++;}
+  gcSave();
+  CM('md-gc-new');
+  renderGC();
+  toast(isEdit?'Cambio actualizado':'Cambio registrado exitosamente','ok');
+  // Sync to Supabase in background
+  sbGcUpsert(rec).then(r=>{if(r)toast('☁️ Guardado en Supabase','ok');});
+}
+
+function renderGC(){
+  loadGC();
+  const fProc=($('gcf-proc')||{value:''}).value;
+  const fEst=($('gcf-estado')||{value:''}).value;
+  const fQ=(($('gcf-q')||{value:''}).value||'').toLowerCase();
+
+  let filtered=GC_DB.filter(r=>{
+    if(fProc&&r.proc!==fProc)return false;
+    if(fEst&&r.estado!==fEst)return false;
+    if(fQ&&!((r.situacion||'').toLowerCase().includes(fQ)||(r.resp||'').toLowerCase().includes(fQ)||gcFormatNum(r.num).toLowerCase().includes(fQ)))return false;
+    return true;
+  }).sort((a,b)=>b.num-a.num);
+
+  const total=GC_DB.length;
+  const byProc={Gerencial:0,Técnico:0,HSEQ:0};
+  GC_DB.forEach(r=>{if(byProc[r.proc]!==undefined)byProc[r.proc]++;});
+  $('gc-kv-total').textContent=total;
+  $('gc-kv-ger').textContent=byProc['Gerencial'];
+  $('gc-kv-tec').textContent=byProc['Técnico'];
+  $('gc-kv-hseq').textContent=byProc['HSEQ'];
+  $('sc-cambio').textContent=total;
+
+  const procColors={Gerencial:'#1a4fdb',Técnico:'#5b21b6',HSEQ:'#0e7490',Otros:'#92490a'};
+  const allProcs={};
+  GC_DB.forEach(r=>{const p=r.proc;allProcs[p]=(allProcs[p]||0)+1;});
+  const maxP=Math.max(...Object.values(allProcs),1);
+  $('gc-chart-proc').innerHTML=Object.entries(allProcs).sort((a,b)=>b[1]-a[1]).map(([p,n])=>{
+    const color=procColors[p]||'#64748b';const pct=Math.round((n/maxP)*100);
+    return `<div class="gc-bar-row"><div class="gc-bar-lbl">${p}</div><div class="gc-bar-track"><div class="gc-bar-fill" style="width:${pct}%;background:${color}"><span>${n}</span></div></div><div class="gc-bar-val">${n}</div></div>`;
+  }).join('')||'<p style="color:var(--t3);font-size:12px">Sin datos</p>';
+
+  const estados={};
+  GC_DB.forEach(r=>{const e=r.estado||'ABIERTO';estados[e]=(estados[e]||0)+1;});
+  const estColors={'ABIERTO':'#0d5c36','EN REVISIÓN':'#1a4fdb','APROBADO':'#137a47','RECHAZADO':'#c0392b','CERRADO':'#0e7490','IMPLEMENTADO':'#5b21b6'};
+  const maxE=Math.max(...Object.values(estados),1);
+  $('gc-chart-estado').innerHTML=Object.entries(estados).sort((a,b)=>b[1]-a[1]).map(([e,n])=>{
+    const color=estColors[e]||'#64748b';const pct=Math.round((n/maxE)*100);
+    return `<div class="gc-bar-row"><div class="gc-bar-lbl" style="font-size:10px">${e}</div><div class="gc-bar-track"><div class="gc-bar-fill" style="width:${pct}%;background:${color}"><span>${n}</span></div></div><div class="gc-bar-val">${n}</div></div>`;
+  }).join('')||'<p style="color:var(--t3);font-size:12px">Sin datos</p>';
+
+  if($('gc-cnt'))$('gc-cnt').textContent=filtered.length+' registros';
+
+  const tbody=$('gc-tbody'),empty=$('gc-empty');
+  if(filtered.length===0){tbody.innerHTML='';empty.style.display='flex';return;}
+  empty.style.display='none';
+
+  const estBg={'ABIERTO':'background:#d1fae5;color:#065f46','EN REVISIÓN':'background:#dbeafe;color:#1e40af','APROBADO':'background:#d1fae5;color:#065f46','RECHAZADO':'background:#fee2e2;color:#991b1b','CERRADO':'background:#e0f2fe;color:#0c4a6e','IMPLEMENTADO':'background:#ede9fe;color:#4c1d95'};
+  const impBg={'Alto':'background:#fee2e2;color:#991b1b','Moderado':'background:#fef3c7;color:#92490a','Bajo':'background:#d1fae5;color:#065f46'};
+
+  tbody.innerHTML=filtered.map(r=>{
+    const pc=r.proc==='Gerencial'?'Gerencial':r.proc==='Técnico'?'Técnico':r.proc==='HSEQ'?'HSEQ':'Otros';
+    const estStyle=estBg[r.estado]||'background:var(--s2);color:var(--t2)';
+    const desc=(r.situacion||r.propuesta||'—').slice(0,90)+(r.situacion&&r.situacion.length>90?'…':'');
+    const planCount=(r.planes||[]).filter(p=>p.actividad).length;
+    const riesgoCount=(r.riesgos||[]).filter(rg=>rg.riesgo).length;
+    return `<tr>
+      <td><span class="gc-num-badge">${gcFormatNum(r.num)}</span></td>
+      <td style="white-space:nowrap;font-size:11px">${r.fecha||'—'}</td>
+      <td style="max-width:240px">
+        <div style="font-size:12px;line-height:1.4;margin-bottom:3px">${desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${r.impacto?`<span style="font-size:9px;padding:1px 6px;border-radius:10px;${impBg[r.impacto]||''}">${r.impacto}</span>`:''}
+          ${riesgoCount?`<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:#f1f5f9;color:#64748b">⚠️ ${riesgoCount} riesgo${riesgoCount>1?'s':''}</span>`:''}
+          ${planCount?`<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:#f1f5f9;color:#64748b">📋 ${planCount} actividad${planCount>1?'es':''}</span>`:''}
+        </div>
+      </td>
+      <td><span class="gc-proc-pill gc-proc-${pc}">${r.proc}</span></td>
+      <td style="font-size:12px">${r.resp||'—'}<br><span style="font-size:10px;color:var(--t3)">${r.cargo||''}</span></td>
+      <td style="font-size:11px;white-space:nowrap">${r.fechaCierre||'—'}</td>
+      <td><span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;${estStyle}">${r.estado}</span></td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="gcPreview(${r.id})" title="Vista previa">👁 Vista</button>
+          <button class="btn btn-sm" style="background:#1e3a8a;color:#fff;border:none" onclick="gcDirectPrint(${r.id})" title="Imprimir PDF">🖨 PDF</button>
+          <button class="btn btn-s btn-sm" onclick="gcRequestEdit(${r.id})" title="Editar">✏️</button>
+          <button class="btn btn-sm" style="background:var(--rl);color:var(--red);border:1px solid #fca5a5" onclick="gcAskDelete(${r.id})" title="Eliminar">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function clearGcF(){
+  ['gcf-proc','gcf-estado'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  const q=$('gcf-q');if(q)q.value='';renderGC();
+}
+
+function gcAskDelete(id){
+  GC_DELETE_ID=id;
+  $('gc-clave-input').value='';
+  $('gc-clave-err').style.display='none';
+  $('md-cambio-clave').style.display='flex';
+  setTimeout(()=>$('gc-clave-input').focus(),120);
+}
+
+function gcCheckClave(){
+  const val=$('gc-clave-input').value;
+  if(val===GC_CLAVE){
+    CM('md-cambio-clave');loadGC();
+    const delId=GC_DELETE_ID;
+    GC_DB=GC_DB.filter(r=>r.id!==delId);
+    gcSave();GC_DELETE_ID=null;renderGC();toast('Registro eliminado','ok');
+    sbGcDelete(delId).then(ok=>{if(ok)toast('☁️ Eliminado de Supabase','ok');});
+  } else {
+    $('gc-clave-err').style.display='block';
+    $('gc-clave-input').value='';$('gc-clave-input').focus();
+  }
+}
+
+function gcBuildDocHTML(r){
+  // Colour helpers
+  const nivelColor={Extremo:{bg:'#c0392b',fg:'#fff'},Alto:{bg:'#e67e22',fg:'#fff'},Moderado:{bg:'#f1c40f',fg:'#222'},Menor:{bg:'#27ae60',fg:'#fff'},Bajo:{bg:'#2ecc71',fg:'#fff'}};
+  const estColor={'ABIERTO':'#065f46','EN REVISIÓN':'#1e40af','APROBADO':'#065f46','RECHAZADO':'#991b1b','CERRADO':'#0c4a6e','IMPLEMENTADO':'#4c1d95'};
+  const estBg   ={'ABIERTO':'#d1fae5','EN REVISIÓN':'#dbeafe','APROBADO':'#d1fae5','RECHAZADO':'#fee2e2','CERRADO':'#e0f2fe','IMPLEMENTADO':'#ede9fe'};
+
+  // Cell style helpers (inline, safe for both preview & print)
+  const S = {
+    hdr : 'font-family:Arial,sans-serif;font-size:10.5px;font-weight:700;color:#fff;padding:6px 9px;border:1px solid rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.04em;',
+    hdrG: 'background:#0d3d24;',
+    hdrB: 'background:#1a3b66;',
+    td  : 'font-family:Arial,sans-serif;font-size:11px;padding:6px 8px;border:1px solid #cbd5e1;vertical-align:top;color:#1a202c;',
+    lbl : 'font-weight:700;color:#374151;background:#f8fafc;',
+    sec : 'font-family:Arial,sans-serif;font-size:10.5px;font-weight:700;color:#fff;padding:6px 10px;text-transform:uppercase;letter-spacing:.05em;border:none;'
+  };
+
+  // ── Riesgos rows ──
+  const riesgosRows = (r.riesgos||[]).filter(rg=>rg.riesgo).map((rg,i)=>{
+    const p=parseInt(rg.p)||0, im=parseInt(rg.i)||0;
+    const v = p&&im ? p*im : null;
+    let ni={label:'—',bg:'#e2e8f0',fg:'#64748b'};
+    if(v){ const info=gcNivelInfo(v); ni={label:info.label,bg:info.bg,fg:info.color}; }
+    const rowBg = i%2===0?'#fff':'#f8fafc';
+    return `<tr style="background:${rowBg}">
+      <td style="${S.td}">${rg.riesgo||''}</td>
+      <td style="${S.td}">${rg.efecto||''}</td>
+      <td style="${S.td}">${rg.control||''}</td>
+      <td style="${S.td}text-align:center;font-weight:700;font-size:13px;color:#1a3b66;">${rg.p||'—'}</td>
+      <td style="${S.td}text-align:center;font-weight:700;font-size:13px;color:#1a3b66;">${rg.i||'—'}</td>
+      <td style="${S.td}text-align:center;font-weight:800;font-size:13px;color:#0d3d24;">${v||'—'}</td>
+      <td style="${S.td}text-align:center;padding:4px 5px;">
+        <span style="display:inline-block;padding:3px 10px;border-radius:4px;font-size:10.5px;font-weight:700;background:${ni.bg};color:${ni.fg};white-space:nowrap;">${ni.label}</span>
+      </td>
+      <td style="${S.td}">${rg.tratamiento||''}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="${S.td}text-align:center;color:#94a3b8;font-style:italic;">Sin riesgos registrados</td></tr>`;
+
+  // ── Plan rows ──
+  const planRows = (r.planes||[]).filter(p=>p.actividad).map((p,i)=>{
+    const rowBg = i%2===0?'#fff':'#f8fafc';
+    return `<tr style="background:${rowBg}">
+      <td style="${S.td}">${p.actividad||''}</td>
+      <td style="${S.td}">${p.responsable||''}</td>
+      <td style="${S.td}text-align:center;white-space:nowrap;">${p.fecha||''}</td>
+      <td style="${S.td}text-align:center;white-space:nowrap;">${p.fecha_seg||''}</td>
+      <td style="${S.td}">${p.observacion||''}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="5" style="${S.td}text-align:center;color:#94a3b8;font-style:italic;">Sin actividades registradas</td></tr>`;
+
+  const estadoBadge = `<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700;background:${estBg[r.estado]||'#e2e8f0'};color:${estColor[r.estado]||'#374151'};">${r.estado||'—'}</span>`;
+  const aprobColor = r.aprobado==='SI' ? '#065f46' : r.aprobado==='NO' ? '#991b1b' : '#374151';
+
+  return `
+<div style="font-family:Arial,sans-serif;font-size:11px;color:#1a202c;line-height:1.45;">
+
+  <!-- ══ CABECERA INSTITUCIONAL ══ -->
+  <table style="width:100%;border-collapse:collapse;border:2px solid #0d3d24;margin-bottom:0;">
+    <tr>
+      <td style="width:100px;padding:8px 12px;border-right:2px solid #0d3d24;text-align:center;vertical-align:middle;background:#fff;">
+        <img src="data:image/jpeg;base64,${LOGO_B64}" alt="Auditoría Ambiental" style="height:52px;width:auto;display:block;margin:0 auto;">
+      </td>
+      <td style="padding:10px 18px;text-align:center;vertical-align:middle;background:#fff;">
+        <div style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#0d3d24;text-transform:uppercase;letter-spacing:.04em;">MATRIZ DE CONTROL DEL CAMBIO</div>
+        <div style="font-family:Arial,sans-serif;font-size:9.5px;color:#718096;margin-top:4px;letter-spacing:.02em;">Sistema de Gestión HSEQ · Auditoría Ambiental S.A.S.</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ══ INFORMACIÓN GENERAL ══ -->
+  <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;border-top:none;">
+    <tr><td colspan="6" style="${S.sec}background:#0d3d24;">📋 Información General</td></tr>
+    <tr>
+      <td style="${S.td}${S.lbl}width:110px;">Fecha:</td>
+      <td style="${S.td}width:100px;">${r.fecha||'—'}</td>
+      <td style="${S.td}${S.lbl}width:80px;">Proceso:</td>
+      <td style="${S.td}">${r.proc||'—'}</td>
+      <td style="${S.td}${S.lbl}width:90px;">Cambio N°:</td>
+      <td style="${S.td}font-weight:700;color:#0d3d24;font-size:13px;">${r.num||'—'}</td>
+    </tr>
+    <tr>
+      <td style="${S.td}${S.lbl}">Cambio solicitado por:</td>
+      <td style="${S.td}" colspan="3">${r.resp||'—'}</td>
+      <td style="${S.td}${S.lbl}">Cargo:</td>
+      <td style="${S.td}">${r.cargo||'—'}</td>
+    </tr>
+    <tr>
+      <td style="${S.td}${S.lbl}vertical-align:top;">Identificación de la(s) necesidad(es) / Descripción de la situación:</td>
+      <td style="${S.td}" colspan="5">${r.situacion||'—'}</td>
+    </tr>
+    <tr>
+      <td style="${S.td}${S.lbl}vertical-align:top;">Propuesta para la gestión del cambio:</td>
+      <td style="${S.td}" colspan="5">${r.propuesta||'—'}</td>
+    </tr>
+  </table>
+
+  <!-- ══ EVALUACIÓN DE RIESGOS ══ -->
+  <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;border-top:none;">
+    <tr><td colspan="8" style="${S.sec}background:#0d3d24;">⚠️ Evaluación de los Riesgos del Cambio <span style="font-size:9px;font-weight:400;opacity:.75;">(Lineamientos P-PG-05)</span></td></tr>
+    <tr>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:18%;">Descripción del Riesgo</th>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:15%;">Efecto Posible</th>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:16%;">Control(es) Existente(s)</th>
+      <th style="${S.hdr}${S.hdrB}width:5%;text-align:center;" title="Probabilidad">P</th>
+      <th style="${S.hdr}${S.hdrB}width:5%;text-align:center;" title="Impacto">I</th>
+      <th style="${S.hdr}${S.hdrB}width:6%;text-align:center;">V=P×I</th>
+      <th style="${S.hdr}${S.hdrB}width:9%;text-align:center;">Nivel</th>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:26%;">Tratamiento del Riesgo</th>
+    </tr>
+    ${riesgosRows}
+  </table>
+
+  <!-- ══ APROBACIÓN ══ -->
+  <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;border-top:none;">
+    <tr><td colspan="4" style="${S.sec}background:#1a3b66;text-align:center;">✅ Responsable de la Aprobación del Cambio</td></tr>
+    <tr>
+      <td style="${S.td}${S.lbl}width:22%;">Se aprueba el cambio:</td>
+      <td style="${S.td}font-weight:700;color:${aprobColor};">${r.aprobado||'—'}</td>
+      <td style="${S.td}${S.lbl}width:18%;">Nombre del Aprobador:</td>
+      <td style="${S.td}">${r.aprobador||'—'}</td>
+    </tr>
+    <tr>
+      <td style="${S.td}${S.lbl}">Cargo del Aprobador:</td>
+      <td style="${S.td}">${r.cargoAprobador||'—'}</td>
+      <td style="${S.td}${S.lbl}">Cargos a comunicar:</td>
+      <td style="${S.td}">${r.comunicar||'—'}</td>
+    </tr>
+  </table>
+
+  <!-- ══ PLAN DE ACCIÓN ══ -->
+  <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;border-top:none;">
+    <tr><td colspan="5" style="${S.sec}background:#0d3d24;">📅 Planeación y Comunicación del Cambio — Plan de Acción</td></tr>
+    <tr>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:34%;">Descripción de Actividad(es)</th>
+      <th style="${S.hdr}${S.hdrB}text-align:left;width:18%;">Responsable</th>
+      <th style="${S.hdr}${S.hdrB}width:11%;text-align:center;">Fecha</th>
+      <th style="${S.hdr}${S.hdrB}width:14%;text-align:center;">Fecha Seguimiento</th>
+      <th style="${S.hdr}${S.hdrB}text-align:left;">Observación(es)</th>
+    </tr>
+    ${planRows}
+  </table>
+
+  <!-- ══ CIERRE ══ -->
+  <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;border-top:none;">
+    <tr><td colspan="6" style="${S.sec}background:#0d3d24;">🔒 Estado y Cierre del Cambio</td></tr>
+    <tr>
+      <td style="${S.td}${S.lbl}width:22%;">Aprobación del plan de acción:</td>
+      <td style="${S.td}font-weight:700;color:${r.aprobacionPlan==='SI'?'#065f46':r.aprobacionPlan==='NO'?'#991b1b':'#374151'};">${r.aprobacionPlan||'—'}</td>
+      <td style="${S.td}${S.lbl}">Estado del cambio:</td>
+      <td style="${S.td}">${estadoBadge}</td>
+      <td style="${S.td}${S.lbl}">Fecha de cierre:</td>
+      <td style="${S.td}">${r.fechaCierre||'—'}</td>
+    </tr>
+    <tr>
+      <td style="${S.td}${S.lbl}">Gestión cerrada por:</td>
+      <td style="${S.td}" colspan="3">${r.cierreNombre||'—'}</td>
+      <td style="${S.td}${S.lbl}">Cargo:</td>
+      <td style="${S.td}">${r.cierreCargo||'—'}</td>
+    </tr>
+  </table>
+
+  <!-- ══ PIE DE PÁGINA ══ -->
+  <table style="width:100%;border-collapse:collapse;border:2px solid #0d3d24;margin-top:6px;table-layout:fixed;">
+    <tr>
+      <td style="width:33.33%;padding:7px 12px;text-align:center;border-right:1px solid #cbd5e1;vertical-align:middle;">
+        <img src="data:image/jpeg;base64,${LOGO_B64}" alt="logo" style="height:30px;width:auto;display:block;margin:0 auto;">
+      </td>
+      <td style="width:33.34%;padding:7px 12px;text-align:center;vertical-align:middle;border-right:1px solid #cbd5e1;">
+        <div style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#0d3d24;text-transform:uppercase;letter-spacing:.06em;">MATRIZ DE CONTROL DEL CAMBIO</div>
+        <div style="font-family:Arial,sans-serif;font-size:9px;color:#718096;margin-top:3px;">Generado: ${new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'})}</div>
+      </td>
+      <td style="width:33.33%;padding:7px 12px;text-align:center;vertical-align:middle;">
+        <div style="font-family:Arial,sans-serif;font-size:9px;color:#718096;line-height:1.6;">Sistema de Gestión/P/PG/P-PG-03/F-01</div>
+        <div style="font-family:Arial,sans-serif;font-size:9px;color:#718096;">Ver. 3 · Pág. 1</div>
+      </td>
+    </tr>
+  </table>
+
+</div>`;
+}
+
+// ── Direct PDF print (sin pasar por vista previa) ──
+function gcDirectPrint(id){
+  loadGC();
+  const r=GC_DB.find(x=>x.id===id);
+  if(!r){ toast('Registro no encontrado','err'); return; }
+  _gcCurrentId=id;
+  gcPrintPreview();
+}
+
+let _gcCurrentId=null;
+function gcPreview(id){
+  _gcCurrentId=id;
+  loadGC();
+  const r=GC_DB.find(x=>x.id===id);
+  if(!r) return;
+
+  $('gc-prev-body').innerHTML = gcBuildDocHTML(r);
+  $('gc-fp-num').textContent = gcFormatNum(r.num);
+  document.body.style.overflow='hidden';
+  $('gc-fullpreview').style.display='block';
+  $('gc-fullpreview').scrollTop=0;
+}
+
+function gcClosePreview(){
+  $('gc-fullpreview').style.display='none';
+  document.body.style.overflow='';
+}
+
+// Close preview on Escape
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('gc-fullpreview').style.display!=='none')gcClosePreview();});
+
+function gcPrintPreview(){
+  const id=_gcCurrentId;
+  if(!id){ toast('Sin registro seleccionado','err'); return; }
+  loadGC();
+  const r=GC_DB.find(x=>x.id===id);
+  if(!r){ toast('Registro no encontrado','err'); return; }
+
+  const docHTML = gcBuildDocHTML(r);
+  const numLabel = gcFormatNum(r.num);
+
+  const w=window.open('','_blank','width=1050,height=1200,menubar=no,toolbar=no,location=no,scrollbars=yes');
+  if(!w){ alert('Por favor permite ventanas emergentes para imprimir.'); return; }
+  w.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestión del Cambio — ${numLabel}</title>
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:Arial,sans-serif; background:#e5e7eb; color:#1a202c; }
+
+  /* ── Barra de herramientas (solo pantalla) ── */
+  .toolbar{
+    position:sticky; top:0; z-index:100;
+    background:#111827;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; height:56px;
+    box-shadow:0 2px 10px rgba(0,0,0,.4);
+  }
+  .toolbar-left{ display:flex; align-items:center; gap:12px; }
+  .toolbar-logo{ font-size:18px; }
+  .toolbar-title{ color:#fff; font-size:14px; font-weight:700; }
+  .toolbar-num{ background:rgba(255,255,255,.12); color:#fff; font-size:11px; padding:3px 12px; border-radius:20px; }
+  .toolbar-right{ display:flex; gap:10px; }
+  .btn-imprimir{
+    background:#0d5c36; color:#fff; border:none; border-radius:7px;
+    padding:9px 22px; font-size:14px; font-weight:700; cursor:pointer;
+    font-family:Arial,sans-serif; display:flex; align-items:center; gap:7px;
+    transition:background .15s;
+  }
+  .btn-imprimir:hover{ background:#0a4a2c; }
+  .btn-cerrar{
+    background:rgba(255,255,255,.1); color:#fff;
+    border:1px solid rgba(255,255,255,.25); border-radius:7px;
+    padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer;
+    font-family:Arial,sans-serif; transition:background .15s;
+  }
+  .btn-cerrar:hover{ background:rgba(255,255,255,.2); }
+
+  /* ── Área de documento ── */
+  .page-area{
+    padding:32px 20px 52px;
+    display:flex; justify-content:center;
+  }
+  .doc-sheet{
+    background:#fff;
+    width:100%; max-width:900px;
+    box-shadow:0 4px 40px rgba(0,0,0,.28);
+    border-radius:3px;
+    padding:30px 34px 34px;
+  }
+
+  /* ── Estilos de impresión ── */
+  @media print{
+    body{ background:#fff; }
+    .toolbar{ display:none !important; }
+    .page-area{ padding:0; display:block; }
+    .doc-sheet{ box-shadow:none; padding:0; border-radius:0; max-width:100%; }
+    @page{ size:A4 portrait; margin:1.5cm 1.5cm 2cm; }
+    /* Forzar colores de fondo en impresión */
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    tr{ page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Barra de herramientas -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <span class="toolbar-logo">📄</span>
+    <span class="toolbar-title">Vista Previa — Gestión del Cambio</span>
+    <span class="toolbar-num">${numLabel}</span>
+  </div>
+  <div class="toolbar-right">
+    <button class="btn-imprimir" onclick="window.print()">🖨&nbsp; Imprimir / Guardar PDF</button>
+    <button class="btn-cerrar" onclick="window.close()">✕ Cerrar</button>
+  </div>
+</div>
+
+<!-- Hoja del documento -->
+<div class="page-area">
+  <div class="doc-sheet">
+    ${docHTML}
+  </div>
+</div>
+
+</body>
+</html>`);
+  w.document.close();
+  w.focus();
+}
+
+// ── Supabase GC ──
+async function sbGcLoad(){
+  const s=getSupa();if(!s)return null;
+  const {data,error}=await s.from('gestion_cambios').select('*').order('num');
+  if(error){console.error('sbGcLoad:',error);return null;}
+  return data;
+}
+async function sbGcUpsert(r){
+  const s=getSupa();if(!s)return null;
+  const row={
+    id:r.id,num:r.num,fecha:r.fecha||null,proc:r.proc||'',
+    resp:r.resp||'',cargo:r.cargo||'',ver:r.ver||'3',
+    situacion:r.situacion||'',propuesta:r.propuesta||'',
+    aprobado:r.aprobado||'',aprobador:r.aprobador||'',
+    cargo_aprobador:r.cargoAprobador||'',comunicar:r.comunicar||'',
+    aprobacion_plan:r.aprobacionPlan||'',estado:r.estado||'ABIERTO',
+    fecha_cierre:r.fechaCierre||null,impacto:r.impacto||'',
+    cierre_nombre:r.cierreNombre||'',cierre_cargo:r.cierreCargo||'',
+    riesgos:r.riesgos||[],planes:r.planes||[],
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await s.from('gestion_cambios').upsert([row],{onConflict:'id'}).select().single();
+  if(error){console.error('sbGcUpsert:',error);toast('Error Supabase GC: '+error.message,'err');return null;}
+  return data;
+}
+async function sbGcDelete(id){
+  const s=getSupa();if(!s)return false;
+  const {error}=await s.from('gestion_cambios').delete().eq('id',id);
+  if(error){console.error('sbGcDelete:',error);return false;}
+  return true;
+}
+async function loadGCFromSupa(){
+  const data=await sbGcLoad();
+  if(!data)return false;
+  GC_DB=data.map(r=>({
+    id:r.id,num:r.num,fecha:r.fecha,proc:r.proc,
+    resp:r.resp,cargo:r.cargo,ver:r.ver||'3',
+    situacion:r.situacion,propuesta:r.propuesta,
+    aprobado:r.aprobado,aprobador:r.aprobador,
+    cargoAprobador:r.cargo_aprobador,comunicar:r.comunicar,
+    aprobacionPlan:r.aprobacion_plan,estado:r.estado,
+    fechaCierre:r.fecha_cierre,impacto:r.impacto,
+    cierreNombre:r.cierre_nombre,cierreCargo:r.cierre_cargo,
+    riesgos:r.riesgos||[],planes:r.planes||[],
+    creado:r.created_at||new Date().toISOString()
+  }));
+  if(GC_DB.length) GC_NEXT_NUM=Math.max(...GC_DB.map(r=>r.num),10)+1;
+  gcSave();
+  return true;
+}
+async function gcMigrateToSupa(){
+  loadGC();
+  if(!GC_DB.length){toast('No hay registros locales para sincronizar','info');return;}
+  const btn=$('btn-gc-sync');
+  if(btn){btn.textContent='☁️ Sincronizando...';btn.disabled=true;}
+  let ok=0,fail=0;
+  for(const r of GC_DB){
+    const res=await sbGcUpsert(r);
+    if(res)ok++;else fail++;
+  }
+  if(btn){btn.textContent='☁️ Sincronizar';btn.disabled=false;}
+  toast(`☁️ ${ok} cambios subidos a Supabase${fail?` · ${fail} con error`:''}`,fail?'err':'ok');
+}
+
+// ═══ END GESTIÓN DEL CAMBIO ═══
 
 init();
 </script>
