@@ -3761,7 +3761,12 @@ async function sbActaUpsert(acta){
     id:acta.id,num_acta:acta.numActa,tipo:acta.tipo,modalidad:acta.modalidad,
     fecha:acta.fecha||null,hinicio:acta.hinicio,hfin:acta.hfin,lugar:acta.lugar,
     objetivo:acta.objetivo,asistentes:acta.asistentes,agenda:acta.agenda,
-    tareas:acta.tareas,adjuntos:(acta.adjuntos||[]).map(a=>({name:a.name,type:a.type})),
+    tareas:acta.tareas,
+    adjuntos:(acta.adjuntos||[]).map(a=>({
+      name:a.name, type:a.type,
+      publicUrl:a.publicUrl||null,
+      storagePath:a.storagePath||null
+    })),
     creado:acta.creado,updated_at:new Date().toISOString()
   };
   const {data,error}=await s.from('actas').upsert([row]).select().single();
@@ -3873,14 +3878,43 @@ function actaRenderTareas(){
 
 // ── Adjuntos ──
 let actaAdjuntos=[];
+const ADJ_BUCKET='adjuntos-actas';
+
+async function actaUploadToStorage(file){
+  const s=getSupa();
+  if(!s) return null;
+  // Unique path: actaId/timestamp_filename
+  const ts=Date.now();
+  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path=`actas/${ts}_${safeName}`;
+  const {data,error}=await s.storage.from(ADJ_BUCKET).upload(path, file, {
+    cacheControl:'3600', upsert:false
+  });
+  if(error){ console.error('Storage upload error:',error); return null; }
+  const {data:urlData}=s.storage.from(ADJ_BUCKET).getPublicUrl(path);
+  return {path, publicUrl: urlData.publicUrl};
+}
 
 function actaHandleFiles(inp){
   const files=Array.from(inp.files);
-  files.forEach(file=>{
-    if(file.size>5*1024*1024){toast('"'+file.name+'" supera 5 MB','err');return;}
+  files.forEach(async file=>{
+    if(file.size>10*1024*1024){toast('"'+file.name+'" supera 10 MB','err');return;}
+    // Show preview immediately from local dataUrl
     const reader=new FileReader();
-    reader.onload=e=>{
-      actaAdjuntos.push({name:file.name,type:file.type,dataUrl:e.target.result});
+    reader.onload=async e=>{
+      const localEntry={name:file.name,type:file.type,dataUrl:e.target.result,uploading:true,publicUrl:null};
+      actaAdjuntos.push(localEntry);
+      actaRenderAdjuntos();
+      // Upload to Supabase Storage in background
+      const result=await actaUploadToStorage(file);
+      if(result){
+        localEntry.publicUrl=result.publicUrl;
+        localEntry.storagePath=result.path;
+        localEntry.uploading=false;
+      } else {
+        // fallback: keep dataUrl only (localStorage)
+        localEntry.uploading=false;
+      }
       actaRenderAdjuntos();
     };
     reader.readAsDataURL(file);
@@ -3897,9 +3931,21 @@ function actaRenderAdjuntos(){
   grid.innerHTML=actaAdjuntos.map((f,i)=>{
     const isImg=f.type&&f.type.startsWith('image/');
     const icon=f.type&&f.type.includes('pdf')?'📄':f.name.endsWith('.docx')||f.name.endsWith('.doc')?'📝':f.name.endsWith('.xlsx')||f.name.endsWith('.xls')?'📊':'📎';
-    return`<div style="position:relative;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#f8fafc;width:120px;flex-shrink:0">
-      ${isImg?`<img src="${f.dataUrl}" style="width:120px;height:90px;object-fit:cover;display:block" alt="${f.name}">`:`<div style="width:120px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><span style="font-size:28px">${icon}</span></div>`}
-      <div style="padding:4px 6px;font-size:10px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff;border-top:1px solid #e2e8f0">${f.name}</div>
+    // Use publicUrl if available, else local dataUrl
+    const imgSrc=f.publicUrl||f.dataUrl||'';
+    const uploading=f.uploading;
+    const preview = isImg && imgSrc
+      ? `<img src="${imgSrc}" style="width:120px;height:90px;object-fit:cover;display:block" alt="${f.name}" onerror="this.style.display='none'">`
+      : `<div style="width:120px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><span style="font-size:28px">${icon}</span></div>`;
+    const badge = uploading
+      ? `<div style="position:absolute;top:3px;left:3px;background:rgba(26,59,102,.8);border-radius:4px;padding:1px 5px;font-size:9px;color:#fff">⬆️</div>`
+      : f.publicUrl
+      ? `<div style="position:absolute;top:3px;left:3px;background:rgba(13,92,54,.8);border-radius:4px;padding:1px 5px;font-size:9px;color:#fff">☁️</div>`
+      : `<div style="position:absolute;top:3px;left:3px;background:rgba(146,73,10,.8);border-radius:4px;padding:1px 5px;font-size:9px;color:#fff">💾</div>`;
+    return`<div style="position:relative;border:1.5px solid ${f.publicUrl?'#b2e8ce':f.uploading?'#bfdbfe':'#e2e8f0'};border-radius:8px;overflow:hidden;background:#f8fafc;width:120px;flex-shrink:0">
+      ${preview}
+      ${badge}
+      <div style="padding:4px 6px;font-size:10px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff;border-top:1px solid #e2e8f0" title="${f.name}">${f.name}</div>
       <button onclick="actaAdjuntos.splice(${i},1);actaRenderAdjuntos()" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,.5);border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center">×</button>
     </div>`;
   }).join('');
@@ -4104,7 +4150,8 @@ function actaPrint(id,fromForm){
       fecha:$('actn-fecha')?$('actn-fecha').value:'',hinicio:$('actn-hinicio')?$('actn-hinicio').value:'',
       hfin:$('actn-hfin')?$('actn-hfin').value:'',lugar:$('actn-lugar')?$('actn-lugar').value:'',
       objetivo:$('actn-objetivo')?$('actn-objetivo').value:'',
-      asistentes:[...actaAsistRows],agenda:[...actaAgendaRows],tareas:[...actaTareaRows]};
+      asistentes:[...actaAsistRows],agenda:[...actaAgendaRows],tareas:[...actaTareaRows],
+      adjuntos:[...actaAdjuntos]};
   }else{loadACTA();a=ACTA_DB.find(r=>r.id===id);if(!a){toast('Acta no encontrada','err');return;}}
 
   const asistHtml=(a.asistentes||[]).length?`<table style="width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:33%">Nombre</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left;width:28%">Cargo</th><th style="background:#1a3b66;color:#fff;padding:6px 9px;text-align:left">Firma</th></tr></thead><tbody>${(a.asistentes).map((r,i)=>{const fUri=actaGetFirma(r.nombre||'');const fH=fUri?`<img src="${fUri}" style="height:42px;max-width:130px;object-fit:contain;filter:contrast(1.2)" alt="firma">`:(r.firma||'&nbsp;');return`<tr style="border-bottom:1px solid #e2e8f0;background:${i%2?'#f8fafc':'#fff'}"><td style="padding:7px 9px">${r.nombre||''}</td><td style="padding:7px 9px">${r.cargo||''}</td><td style="padding:7px 9px;min-height:46px">${fH}</td></tr>`;}).join('')}</tbody></table>`:'<p style="color:#718096;font-size:11.5px;padding:8px 0">Sin asistentes</p>';
@@ -4145,7 +4192,23 @@ ${a.objetivo?`<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-rad
 <div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span>Agenda y Desarrollo</div><div style="padding:10px 12px;">${agendaHtml}</div></div>
 <div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">3</span>Compromisos y Tareas</div><div style="padding:10px 12px;">${tareasHtml}</div></div>
 
-${(a.adjuntos||[]).length?`<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;"><div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;"><span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span>Adjuntos</div><div style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:12px;">${(a.adjuntos).map(f=>f.type&&f.type.startsWith('image/')?`<div style="text-align:center"><img src="${f.dataUrl}" style="max-width:180px;max-height:140px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block"><div style="font-size:9px;color:#718096;margin-top:3px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div></div>`:`<div style="display:flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px"><span style="font-size:20px">${f.type&&f.type.includes('pdf')?'📄':f.name.endsWith('.docx')||f.name.endsWith('.doc')?'📝':'📊'}</span><span style="font-size:11px">${f.name}</span></div>`).join('')}</div></div>`:''}
+${(a.adjuntos||[]).length?`<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+  <div style="background:#1a3b66;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:8px;">
+    <span style="width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span>Adjuntos
+  </div>
+  <div style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:12px;">
+    ${(a.adjuntos).map(f=>{
+      const isImg=f.type&&f.type.startsWith('image/');
+      const icon=f.type&&f.type.includes('pdf')?'📄':f.name.endsWith('.docx')||f.name.endsWith('.doc')?'📝':'📊';
+      const src=f.publicUrl||f.dataUrl||'';
+      if(isImg && src){
+        return `<div style="text-align:center"><img src="${src}" style="max-width:180px;max-height:140px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;display:block" onerror="this.parentElement.innerHTML='<span style=\\'font-size:20px\\'>🖼️</span>'"><div style="font-size:9px;color:#718096;margin-top:3px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.name}">${f.name}</div></div>`;
+      } else {
+        return `<div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px"><span style="font-size:20px">${isImg?'🖼️':icon}</span><span style="font-size:11px;color:#1a202c">${f.name}</span></div>`;
+      }
+    }).join('')}
+  </div>
+</div>`:''}
 
 <!-- PIE DE PÁGINA estilo imagen 1 -->
 <div style="position:absolute;bottom:0;left:0;right:0;height:54px;background:#fff;border-top:2.5px solid #1a3b66;display:flex;align-items:center;padding:0 20px;gap:0;">
