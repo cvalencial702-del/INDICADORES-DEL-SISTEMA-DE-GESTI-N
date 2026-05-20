@@ -702,9 +702,9 @@ body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:
             <tr>
               <th>Fecha</th>
               <th>Tipo</th>
+              <th>Aud. N°</th>
+              <th>Reporte N°</th>
               <th>Descripción</th>
-              <th>Responsable</th>
-              <th>Fecha límite</th>
               <th>Avance</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -1451,8 +1451,8 @@ CREATE INDEX IF NOT EXISTS idx_gc_proc ON public.gestion_cambios(proc);</textare
               <input class="nc-fi" type="number" id="ncn-aud-num" placeholder="N° auditoría">
             </div>
             <div class="fg">
-              <label class="nc-flbl">Reporte N°</label>
-              <input class="nc-fi" type="number" id="ncn-rep-num" placeholder="N° reporte">
+              <label class="nc-flbl">Reporte N° <span style="font-size:10px;font-weight:500;color:var(--g2);background:var(--gl);border-radius:4px;padding:1px 6px;">Auto</span></label>
+              <input class="nc-fi" type="text" id="ncn-rep-num" placeholder="Se asigna al guardar" readonly style="background:#f1f5f9;color:var(--t2);cursor:default;border-color:var(--border);" tabindex="-1">
             </div>
             <div class="fg">
               <label class="nc-flbl">Tipo de Hallazgo <span class="req">*</span></label>
@@ -1477,22 +1477,24 @@ CREATE INDEX IF NOT EXISTS idx_gc_proc ON public.gestion_cambios(proc);</textare
               </select>
             </div>
             <div class="fg">
-              <label class="nc-flbl">Tipo de Norma</label>
-              <select class="nc-fsel" id="ncn-norma" onchange="ncToggleNorma()">
-                <option value="">Seleccione...</option>
-                <option>RUC</option>
-                <option>ISO 9001</option>
-                <option>ISO 14001</option>
-                <option>ISO 45001</option>
-                <option>Legal</option>
-                <option>Cliente</option>
-                <option>Otras</option>
-              </select>
+              <label class="nc-flbl">Tipo de Norma <span style="font-size:10px;font-weight:500;color:var(--blue);">múltiple</span></label>
+              <div style="position:relative;" id="norma-ms-wrap">
+                <div id="norma-ms-trigger" onclick="ncToggleNormaDD(event)" style="border:1.5px solid var(--b2);border-radius:7px;padding:6px 32px 6px 10px;font-size:13px;cursor:pointer;background:var(--surface);min-height:36px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;position:relative;user-select:none;">
+                  <span id="norma-ms-placeholder" style="color:var(--t3);font-size:13px;">Seleccione una o varias...</span>
+                  <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:11px;pointer-events:none;">▾</span>
+                </div>
+                <div id="norma-ms-dropdown" style="display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1.5px solid var(--b2);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.13);z-index:400;padding:5px 0;max-height:230px;overflow-y:auto;">
+                  <div style="padding:5px 10px 3px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;">Selecciona las normas aplicables</div>
+                  <div id="norma-ms-list"></div>
+                </div>
+              </div>
+              <!-- hidden select para compatibilidad con el resto del código -->
+              <select id="ncn-norma" style="display:none"></select>
             </div>
           </div>
           <div id="ncn-norma-extra-wrap" style="display:none;margin-bottom:11px">
-            <label class="nc-flbl" id="ncn-norma-extra-lbl">¿Cuál?</label>
-            <input class="nc-fi" id="ncn-norma-extra" placeholder="Especifique...">
+            <label class="nc-flbl" id="ncn-norma-extra-lbl">Especificar (Cliente / Otras)</label>
+            <input class="nc-fi" id="ncn-norma-extra" placeholder="Especifique el cliente o referencia normativa...">
           </div>
           <div class="fg2" style="margin-bottom:11px">
             <div class="fg">
@@ -1531,9 +1533,6 @@ CREATE INDEX IF NOT EXISTS idx_gc_proc ON public.gestion_cambios(proc);</textare
               <label class="nc-flbl">Metodología Empleada</label>
               <select class="nc-fsel" id="ncn-metodologia">
                 <option>5 POR QUÉ?</option>
-                <option>ESPINA DE PESCADO (Ishikawa)</option>
-                <option>ANÁLISIS DE ÁRBOL DE FALLA</option>
-                <option>OTRA METODOLOGÍA</option>
               </select>
             </div>
             <div class="fg">
@@ -2086,6 +2085,7 @@ function showPage(p,el){
   if(p==='historial')renderHist();
   if(p==='nc'){
     loadNC();renderNC();
+    sbNcLoadCounters(); // load rep/aud counters
     loadNCFromSupa().then(ok=>{if(ok)renderNC();});
   }
   if(p==='actas'){
@@ -2991,6 +2991,8 @@ async function init(){
 // ─── NO CONFORMIDADES DATA ───
 let NC_DB = [];
 let NC_NID = 1;
+let NC_REP_COUNTER = 403;   // auto-increments from Supabase nc_counters
+let NC_AUD_NUM = 243;        // current audit number from Supabase nc_counters
 let AUD_DB = [];
 let AUD_NID = 1;
 let currentNcId = null;
@@ -3007,6 +3009,26 @@ function loadAUD(){
 }
 
 // ── Supabase helpers NC ──
+async function sbNcLoadCounters(){
+  const s=getSupa();if(!s)return;
+  const {data,error}=await s.from('nc_counters').select('*');
+  if(error||!data)return;
+  data.forEach(row=>{
+    if(row.key==='rep_num') NC_REP_COUNTER=row.valor;
+    if(row.key==='aud_num') NC_AUD_NUM=row.valor;
+  });
+}
+async function sbNcIncrementRep(){
+  const s=getSupa();if(!s)return NC_REP_COUNTER+1;
+  NC_REP_COUNTER++;
+  await s.from('nc_counters').upsert([{key:'rep_num',valor:NC_REP_COUNTER}]);
+  return NC_REP_COUNTER;
+}
+async function sbNcSetAudNum(val){
+  const s=getSupa();if(!s)return;
+  NC_AUD_NUM=parseInt(val)||NC_AUD_NUM;
+  await s.from('nc_counters').upsert([{key:'aud_num',valor:NC_AUD_NUM}]);
+}
 async function sbNcLoad(){
   const s=getSupa();if(!s)return null;
   const {data,error}=await s.from('no_conformidades').select('*').order('id');
@@ -3181,11 +3203,11 @@ function renderNC(){
     const pct=Math.min(100,Math.max(0,parseInt(nc.avance)||0));
     const pfC=pct>=80?'var(--g3)':pct>=40?'#f59e0b':'var(--red)';
     return`<tr onclick="openNcDet(${nc.id})">
-      <td style="color:var(--t2)">${nc.fecha||'—'}</td>
+      <td style="color:var(--t2);white-space:nowrap">${nc.fecha||'—'}</td>
       <td>${ncTipoBadge(nc.tipo)}</td>
-      <td style="max-width:200px"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${nc.desc||'—'}</div></td>
-      <td style="font-size:12px">${nc.resp||'—'}</td>
-      <td style="font-size:12px;color:var(--t2)">${nc.limite||'—'}</td>
+      <td style="font-size:12px;white-space:nowrap">${nc.audNum?`<span style="display:inline-flex;align-items:center;gap:3px;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:600">🔍 ${nc.audNum}</span>`:'<span style="color:var(--t3)">—</span>'}</td>
+      <td style="font-size:12px;white-space:nowrap">${nc.repNum?`<span style="display:inline-flex;align-items:center;gap:3px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:600">📋 ${nc.repNum}</span>`:'<span style="color:var(--t3)">—</span>'}</td>
+      <td style="max-width:220px"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${nc.desc||'—'}</div></td>
       <td>
         <div class="nc-prog-wrap">
           <div style="font-size:11px;font-weight:700;color:var(--t2)">${pct}%</div>
@@ -3325,12 +3347,20 @@ function ncSetCierre(v){
 function openNcNew(){
   currentNcId=null;ncActRows=[];ncSegRows=[];ncCierre='NO';
   ['ncn-metodologia'].forEach(id=>{const e=$(id);if(e)e.selectedIndex=0;});
-  ['ncn-tipo','ncn-aud-tipo','ncn-norma','ncn-proceso'].forEach(id=>{const e=$(id);if(e)e.value='';});
-  ['ncn-fecha','ncn-aud-num','ncn-rep-num','ncn-req','ncn-desc',
+  ['ncn-tipo','ncn-aud-tipo','ncn-proceso'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  ncClearNorma();
+  ['ncn-fecha','ncn-req','ncn-desc',
    'ncn-participantes','ncn-why1','ncn-why2','ncn-why3','ncn-why4','ncn-why5',
    'ncn-fecha-cierre','ncn-norma-extra'].forEach(id=>{const e=$(id);if(e)e.value='';});
   const wrap=$('ncn-norma-extra-wrap');if(wrap)wrap.style.display='none';
   if($('ncn-avance'))$('ncn-avance').value='0';
+  // Auditoría N° — readonly, muestra el número actual del módulo de auditorías
+  // Auditoría N° — editable manualmente, pre-rellena con el número actual
+  const audInp=$('ncn-aud-num');
+  if(audInp){audInp.value=NC_AUD_NUM;audInp.readOnly=false;audInp.style.background='';audInp.style.color='';audInp.title='Ingresa el número de auditoría correspondiente';}
+  // Reporte N° — readonly, se asigna automáticamente al guardar
+  const repInp=$('ncn-rep-num');
+  if(repInp){repInp.value='→ '+(NC_REP_COUNTER+1);}
   const nb=$('nc-num-badge');if(nb)nb.textContent='Nuevo registro';
   const tit=$('nc-modal-title');if(tit)tit.textContent='⚠️ Registro de No Conformidad';
   const si=$('cierre-si'),no=$('cierre-no');
@@ -3348,13 +3378,14 @@ function saveNc(){
   loadNC();
   const whys=[];
   for(let i=1;i<=5;i++){const v=$('ncn-why'+i);if(v&&v.value.trim())whys.push(v.value.trim());}
-  const normaBase=$('ncn-norma')?$('ncn-norma').value:'';
-  const normaExtra=$('ncn-norma-extra')?$('ncn-norma-extra').value.trim():'';
-  const normaFinal=(normaBase==='Cliente'||normaBase==='Otras')&&normaExtra?normaBase+' — '+normaExtra:normaBase;
+  const normaFinal=ncGetNormaValue();
+  const isNew=!currentNcId;
+  const existingNc=isNew?null:NC_DB.find(r=>r.id===currentNcId);
   const nc={
     id:currentNcId||NC_NID++,tipo,fecha,
-    audNum:$('ncn-aud-num')?$('ncn-aud-num').value.trim():'',
-    repNum:$('ncn-rep-num')?$('ncn-rep-num').value.trim():'',
+    // audNum: always current NC_AUD_NUM; repNum: keep existing on edit, assign on new
+    audNum:String(NC_AUD_NUM),
+    repNum:isNew?'__PENDING__':(existingNc?existingNc.repNum:''),
     audTipo:$('ncn-aud-tipo')?$('ncn-aud-tipo').value:'',
     norma:normaFinal,
     proceso:$('ncn-proceso')?$('ncn-proceso').value:'',
@@ -3372,17 +3403,24 @@ function saveNc(){
     estado:ncCierre==='SI'||parseInt($('ncn-avance')?$('ncn-avance').value:0)>=100?'CERRADA':ncActRows.length>0&&parseInt($('ncn-avance')?$('ncn-avance').value:0)>0?'EN_PROGRESO':'ABIERTA',
     historial:[{fecha:new Date().toLocaleDateString('es-CO'),accion:currentNcId?'Actualización':'Registro inicial',user:'Sistema'}]
   };
-  if(currentNcId){
-    const idx=NC_DB.findIndex(r=>r.id===currentNcId);
-    if(idx>=0){nc.historial=[...NC_DB[idx].historial,nc.historial[0]];NC_DB[idx]=nc;}
-    else NC_DB.push(nc);
-  }else NC_DB.push(nc);
-  saveNC();CM('md-nc-new');renderNC();
-  toast(currentNcId?'NC actualizada':'NC registrada','ok');
-  // Sync to Supabase
-  sbNcUpsert(nc).then(r=>{
+  const doSaveNc=async()=>{
+    if(isNew){
+      // Assign next repNum from Supabase counter
+      const nextRep=await sbNcIncrementRep();
+      nc.repNum=String(nextRep);
+    }
+    if(currentNcId){
+      const idx=NC_DB.findIndex(r=>r.id===currentNcId);
+      if(idx>=0){nc.historial=[...NC_DB[idx].historial,nc.historial[0]];NC_DB[idx]=nc;}
+      else NC_DB.push(nc);
+    }else NC_DB.push(nc);
+    saveNC();CM('md-nc-new');renderNC();
+    toast(currentNcId?'NC actualizada':'NC registrada — Reporte N°'+nc.repNum,'ok');
+    sbNcUpsert(nc).then(r=>{
     if(r) toast('☁️ NC sincronizada con Supabase','ok');
-  });
+    });
+  };
+  doSaveNc();
 }
 
 // ── Detalle NC (solo lectura, sin clave) ──
@@ -3451,8 +3489,8 @@ function openNcEdit(id){
   setTimeout(()=>{
     if($('ncn-tipo'))$('ncn-tipo').value=nc.tipo||'';
     if($('ncn-fecha'))$('ncn-fecha').value=nc.fecha||'';
-    if($('ncn-aud-num'))$('ncn-aud-num').value=nc.audNum||'';
-    if($('ncn-rep-num'))$('ncn-rep-num').value=nc.repNum||'';
+    if($('ncn-aud-num')){$('ncn-aud-num').value=nc.audNum||NC_AUD_NUM;$('ncn-aud-num').readOnly=true;$('ncn-aud-num').style.background='#f1f5f9';$('ncn-aud-num').style.color='var(--t2)';}
+    if($('ncn-rep-num')){$('ncn-rep-num').value=nc.repNum||'';}
     if($('ncn-aud-tipo'))$('ncn-aud-tipo').value=nc.audTipo||'';
     if($('ncn-proceso'))$('ncn-proceso').value=nc.proceso||'';
     if($('ncn-req'))$('ncn-req').value=nc.req||'';
@@ -3462,32 +3500,105 @@ function openNcEdit(id){
     (nc.whys||[]).forEach((w,i)=>{const e=$('ncn-why'+(i+1));if(e)e.value=w;});
     if($('ncn-avance'))$('ncn-avance').value=nc.avance||0;
     if($('ncn-fecha-cierre'))$('ncn-fecha-cierre').value=nc.fechaCierre||'';
-    if($('ncn-norma')&&nc.norma){
-      const base=nc.norma.split(' — ')[0];
-      const extra=nc.norma.includes(' — ')?nc.norma.split(' — ').slice(1).join(' — '):'';
-      $('ncn-norma').value=base;
-      if((base==='Cliente'||base==='Otras')&&extra){
-        const wrap=$('ncn-norma-extra-wrap');if(wrap)wrap.style.display='';
-        const lbl=$('ncn-norma-extra-lbl');if(lbl)lbl.textContent=base==='Cliente'?'¿Cuál cliente?':'¿Cuál otra norma?';
-        const inp=$('ncn-norma-extra');if(inp)inp.value=extra;
-      }else{const wrap=$('ncn-norma-extra-wrap');if(wrap)wrap.style.display='none';}
-    }
+    if(nc.norma) ncSetNormaValue(nc.norma);
     ncSetCierre(nc.cierre||'NO');
     ncUpdateProgress();ncRenderActTable();ncRenderSegTable();
   },30);
 }
 
-function ncToggleNorma(){
-  const v=$('ncn-norma').value;
-  const wrap=$('ncn-norma-extra-wrap');
-  const lbl=$('ncn-norma-extra-lbl');
-  const inp=$('ncn-norma-extra');
-  if(v==='Cliente'||v==='Otras'){
-    if(wrap)wrap.style.display='';
-    if(lbl)lbl.textContent=v==='Cliente'?'¿Cuál cliente?':'¿Cuál otra norma?';
-    if(inp){inp.value='';inp.placeholder=v==='Cliente'?'Nombre del cliente...':'Nombre de la norma...';}
-  }else{if(wrap)wrap.style.display='none';if(inp)inp.value='';}
+// ── Norma multi-select ──
+const NC_NORMAS = ['RUC','ISO 9001','ISO 14001','ISO 45001','Legal','Cliente','Otras'];
+
+function ncInitNormaDD(){
+  const list = $('norma-ms-list');
+  if(!list) return;
+  list.innerHTML = NC_NORMAS.map(n=>`
+    <label style="display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;font-size:13px;transition:background .1s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
+      <input type="checkbox" value="${n}" name="ncn-norma-cb" onchange="ncNormaChange()" style="width:15px;height:15px;accent-color:var(--g1);cursor:pointer;flex-shrink:0;">
+      <span>${n}</span>
+    </label>`).join('');
+  // Close on outside click
+  document.addEventListener('mousedown', e=>{
+    const wrap=$('norma-ms-wrap');
+    if(wrap && !wrap.contains(e.target)) ncCloseNormaDD();
+  });
 }
+
+function ncToggleNormaDD(e){
+  if(e) e.stopPropagation();
+  const dd=$('norma-ms-dropdown');
+  if(!dd) return;
+  if(!$('norma-ms-list').children.length) ncInitNormaDD();
+  dd.style.display = dd.style.display==='none' ? '' : 'none';
+}
+function ncCloseNormaDD(){ const dd=$('norma-ms-dropdown'); if(dd) dd.style.display='none'; }
+
+function ncNormaChange(){
+  const checked=[...document.querySelectorAll('input[name="ncn-norma-cb"]:checked')].map(cb=>cb.value);
+  // Update hidden select (legacy compat)
+  const sel=$('ncn-norma'); if(sel){ sel.innerHTML=''; checked.forEach(v=>{const o=document.createElement('option');o.value=v;o.selected=true;sel.appendChild(o);});}
+  // Update trigger display
+  const trigger=$('norma-ms-trigger');
+  const ph=$('norma-ms-placeholder');
+  if(checked.length===0){
+    if(ph){ph.style.display='';ph.textContent='Seleccione una o varias...';}
+    // Remove all badges
+    trigger.querySelectorAll('.norma-badge').forEach(b=>b.remove());
+  } else {
+    if(ph) ph.style.display='none';
+    trigger.querySelectorAll('.norma-badge').forEach(b=>b.remove());
+    checked.forEach(v=>{
+      const badge=document.createElement('span');
+      badge.className='norma-badge';
+      badge.style.cssText='background:var(--gl);color:var(--g1);border:1px solid var(--gm);border-radius:5px;padding:1px 8px;font-size:11px;font-weight:600;white-space:nowrap;';
+      badge.textContent=v;
+      trigger.insertBefore(badge, trigger.querySelector('span:last-child'));
+    });
+  }
+  // Show/hide extra input for Cliente or Otras
+  const needsExtra = checked.includes('Cliente')||checked.includes('Otras');
+  const wrap=$('ncn-norma-extra-wrap');
+  if(wrap) wrap.style.display = needsExtra ? '' : 'none';
+  if(needsExtra){
+    const lbl=$('ncn-norma-extra-lbl');
+    const parts=[];
+    if(checked.includes('Cliente')) parts.push('Cliente');
+    if(checked.includes('Otras')) parts.push('Otras');
+    if(lbl) lbl.textContent='Especificar: '+parts.join(' / ');
+  } else {
+    const inp=$('ncn-norma-extra'); if(inp) inp.value='';
+  }
+}
+
+function ncGetNormaValue(){
+  const checked=[...document.querySelectorAll('input[name="ncn-norma-cb"]:checked')].map(cb=>cb.value);
+  const extra=$('ncn-norma-extra')?$('ncn-norma-extra').value.trim():'';
+  if(!checked.length) return '';
+  const needsExtra=checked.includes('Cliente')||checked.includes('Otras');
+  return needsExtra && extra ? checked.join(', ')+' — '+extra : checked.join(', ');
+}
+
+function ncSetNormaValue(val){
+  if(!val) return;
+  // Ensure dropdown is initialised
+  if(!$('norma-ms-list').children.length) ncInitNormaDD();
+  const parts = val.split(' — ');
+  const normasStr = parts[0];
+  const extra = parts[1]||'';
+  const normas = normasStr.split(', ').map(s=>s.trim());
+  document.querySelectorAll('input[name="ncn-norma-cb"]').forEach(cb=>{
+    cb.checked = normas.includes(cb.value);
+  });
+  if(extra){ const inp=$('ncn-norma-extra'); if(inp) inp.value=extra; }
+  ncNormaChange();
+}
+
+function ncClearNorma(){
+  document.querySelectorAll('input[name="ncn-norma-cb"]').forEach(cb=>cb.checked=false);
+  ncNormaChange();
+}
+
+function ncToggleNorma(){ /* legacy no-op — replaced by ncNormaChange */ }
 
 // ── Imprimir ──
 function ncPrint(){const nc=currentNcId?NC_DB.find(r=>r.id===currentNcId):null;ncDoPrint(nc);}
